@@ -1,0 +1,82 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum CargoPosicao {
+  ALUNO
+  COORDENADOR
+  DIRETOR
+}
+
+model usuario {
+  id              Int      @id @default(autoincrement())
+  codigo          String   @unique @db.VarChar(30)
+  nome            String   @db.VarChar(30)
+  email           String   @db.VarChar(120)
+  senha           String   @db.VarChar(90)
+  dataCriacao     DateTime @default(now()) @db.Timestamp()
+  dataAtualizacao DateTime @updatedAt() @db.Timestamp()
+
+  cargo       cargo         @relation(fields: [cargoId], references: [id])
+  cargoId     String
+  certificado certificado[]
+  presenca    presenca[]
+}
+
+model cargo {
+  id          String       @id @default(uuid())
+  posicao     CargoPosicao @unique
+  dataCriacao DateTime     @default(now()) @db.Timestamp()
+
+  usuario usuario[]
+}
+
+model evento {
+  id              Int           @id @default(autoincrement())
+  titulo          String        @db.VarChar(40)
+  descricao       String?       @db.VarChar(255)
+  codigo          String?       @db.VarChar(12)
+  dataHoraInicio  DateTime      @db.Timestamp()
+  dataHoraTermino DateTime      @db.Timestamp()
+  dataCriacao     DateTime      @default(now()) @db.Timestamp()
+  dataAtualizacao DateTime      @updatedAt @db.Timestamp()
+  certificado     certificado[]
+  presenca        presenca[]
+}
+
+model local {
+  id              Int      @id @default(autoincrement())
+  titulo          String   @db.VarChar(50)
+  descricao       String?  @db.VarChar(255)
+  urlImagem       String?
+  dataCriacao     DateTime @default(now()) @db.Timestamp()
+  dataAtualizacao DateTime @updatedAt @db.Timestamp()
+}
+
+model certificado {
+  id String @id @default(uuid())
+
+  usuario   usuario @relation(fields: [usuarioId], references: [id])
+  evento    evento  @relation(fields: [eventoId], references: [id])
+  usuarioId Int
+  eventoId  Int
+
+  dataEmissao DateTime @default(now()) @db.Timestamp()
+}
+
+model presenca {
+  id String @id @default(uuid())
+
+  usuario   usuario @relation(fields: [usuarioId], references: [id])
+  evento    evento  @relation(fields: [eventoId], references: [id])
+  usuarioId Int
+  eventoId  Int
+
+  dataInscricao DateTime  @default(now()) @db.Timestamp()
+  dataPresenca  DateTime? @db.Timestamp()
+}
