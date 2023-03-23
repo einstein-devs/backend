@@ -14,13 +14,14 @@ enum CargoPosicao {
 }
 
 model usuario {
-  id              Int      @id @default(autoincrement())
-  codigo          String   @unique @db.VarChar(30)
-  nome            String   @db.VarChar(30)
-  email           String   @db.VarChar(120)
-  senha           String   @db.VarChar(90)
-  dataCriacao     DateTime @default(now()) @db.Timestamp()
-  dataAtualizacao DateTime @updatedAt() @db.Timestamp()
+  id              Int       @id @default(autoincrement())
+  codigo          String    @unique @db.VarChar(30)
+  nome            String    @db.VarChar(30)
+  email           String    @db.VarChar(120)
+  senha           String    @db.VarChar(90)
+  dataCriacao     DateTime  @default(now()) @db.Timestamp()
+  dataAtualizacao DateTime  @updatedAt() @db.Timestamp()
+  dataExclusao    DateTime? @db.Timestamp()
 
   cargo       cargo         @relation(fields: [cargoId], references: [id])
   cargoId     String
