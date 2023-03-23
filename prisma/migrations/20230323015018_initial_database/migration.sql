@@ -17,6 +17,27 @@ CREATE TABLE "usuario" (
 );
 
 -- CreateTable
+CREATE TABLE "curso" (
+    "id" TEXT NOT NULL,
+    "nome" TEXT NOT NULL,
+    "ementa" TEXT,
+    "dataCriacao" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "dataAtualizacao" TIMESTAMP NOT NULL,
+
+    CONSTRAINT "curso_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "usuario_curso" (
+    "id" SERIAL NOT NULL,
+    "usuarioId" INTEGER NOT NULL,
+    "cursoId" TEXT NOT NULL,
+    "dataCriacao" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "usuario_curso_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "cargo" (
     "id" TEXT NOT NULL,
     "posicao" "CargoPosicao" NOT NULL,
@@ -80,6 +101,12 @@ CREATE UNIQUE INDEX "cargo_posicao_key" ON "cargo"("posicao");
 
 -- AddForeignKey
 ALTER TABLE "usuario" ADD CONSTRAINT "usuario_cargoId_fkey" FOREIGN KEY ("cargoId") REFERENCES "cargo"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "usuario_curso" ADD CONSTRAINT "usuario_curso_usuarioId_fkey" FOREIGN KEY ("usuarioId") REFERENCES "usuario"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "usuario_curso" ADD CONSTRAINT "usuario_curso_cursoId_fkey" FOREIGN KEY ("cursoId") REFERENCES "curso"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "certificado" ADD CONSTRAINT "certificado_usuarioId_fkey" FOREIGN KEY ("usuarioId") REFERENCES "usuario"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
