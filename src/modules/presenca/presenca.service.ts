@@ -118,8 +118,7 @@ export class PresencaService {
           },
         },
       });
-    } catch (er) {
-      console.log(er);
+    } catch {
       return null;
     }
   }
