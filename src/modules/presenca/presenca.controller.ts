@@ -15,13 +15,13 @@ export class PresencaController {
     @Param() { eventoId }: ParamsPostPresencaDTO,
   ) {
     const usuarioId: number = request.user.id;
-    const presencaCriada = await this.presencaService.createPresenca(
+    const inscricaoCriada = await this.presencaService.createPresenca(
       eventoId,
       usuarioId,
     );
 
     return new DefaultResponseDTO(
-      presencaCriada,
+      inscricaoCriada,
       'A inscrição foi confirmada com sucesso!',
     );
   }
@@ -33,13 +33,13 @@ export class PresencaController {
     @Param() { eventoId }: ParamsPostPresencaDTO,
   ) {
     const usuarioId: number = request.user.id;
-    const presencaCriada = await this.presencaService.confirmarPresenca(
+    const presencaConfirmada = await this.presencaService.confirmarPresenca(
       eventoId,
       usuarioId,
     );
 
     return new DefaultResponseDTO(
-      presencaCriada,
+      presencaConfirmada,
       'A presença foi confirmada com sucesso!',
     );
   }
