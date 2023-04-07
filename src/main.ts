@@ -2,7 +2,6 @@ import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
-import populateDatabase from './database/seed';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -25,8 +24,6 @@ async function bootstrap() {
     }),
   );
 
-  await populateDatabase();
-
-  await app.listen(3000);
+  await app.listen(process.env.SERVER_PORT);
 }
 bootstrap();
