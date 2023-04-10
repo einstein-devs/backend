@@ -47,11 +47,7 @@ async function populateDatabase() {
         nome: 'Eduardo Bertoli',
         email: 'eduardo@gmail.com',
         senha: passwordHashed,
-        cargo: {
-          connect: {
-            posicao: CargoPosicao.DIRETOR,
-          },
-        },
+        cargo: CargoPosicao.DIRETOR,
         codigo: '1',
       },
       where: {

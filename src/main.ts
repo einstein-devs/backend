@@ -25,8 +25,7 @@ async function bootstrap() {
     }),
   );
 
-  await populateDatabase();
-
   await app.listen(3000);
 }
+
 bootstrap();
