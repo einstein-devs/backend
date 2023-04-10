@@ -24,7 +24,7 @@ export class PresencaService {
       usuarioId,
     );
     if (!presencaExiste) {
-      throw new UnauthorizedException('Presença em evento não encontrada!');
+      throw new NotFoundException('Presença em evento não encontrada!');
     }
     if (presencaExiste.dataInscricao) {
       throw new UnauthorizedException('Presença em evento já foi confirmada!');
