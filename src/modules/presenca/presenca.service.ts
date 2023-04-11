@@ -10,13 +10,18 @@ import { PrismaService } from '../prisma/prisma.service';
 export class PresencaService {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async confirmarPresenca(eventoId: number, usuarioId: number) {
+  async confirmarPresenca(eventoId: number, usuarioId: number, codigo: string) {
     const eventoExiste = await this._findEventoById(eventoId);
     if (!eventoExiste) {
       throw new NotFoundException('Evento não encontrado!');
     }
     if (new Date() > eventoExiste.dataHoraTermino) {
       throw new UnauthorizedException('Evento indisponível!');
+    }
+    if (eventoExiste.codigo != codigo) {
+      throw new UnauthorizedException(
+        'Código de confirmação de presença inválido!',
+      );
     }
 
     const presencaExiste = await this._findPresencaByEventoIdAndUsuarioId(

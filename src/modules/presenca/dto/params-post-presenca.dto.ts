@@ -1,5 +1,5 @@
 import { Type } from 'class-transformer';
-import { IsInt, IsNotEmpty, IsOptional } from 'class-validator';
+import { IsInt, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class ParamsPostPresencaDTO {
   @IsInt()
@@ -7,4 +7,8 @@ export class ParamsPostPresencaDTO {
   @IsOptional()
   @Type(() => Number)
   eventoId: number;
+
+  @IsNotEmpty()
+  @IsString()
+  codigo: string;
 }
