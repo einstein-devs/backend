@@ -30,12 +30,13 @@ export class PresencaController {
   @Post('/confirmar/:eventoId')
   async postConfirmarPresenca(
     @Req() request,
-    @Param() { eventoId }: ParamsPostPresencaDTO,
+    @Param() { eventoId, codigo }: ParamsPostPresencaDTO,
   ) {
     const usuarioId: number = request.user.id;
     const presencaConfirmada = await this.presencaService.confirmarPresenca(
       eventoId,
       usuarioId,
+      codigo,
     );
 
     return new DefaultResponseDTO(
