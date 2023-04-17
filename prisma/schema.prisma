@@ -19,9 +19,9 @@ model usuario {
   nome            String    @db.VarChar(30)
   email           String    @db.VarChar(120)
   senha           String    @db.VarChar(90)
-  dataCriacao     DateTime  @default(now()) @db.Timestamp()
-  dataAtualizacao DateTime  @updatedAt() @db.Timestamp()
-  dataExclusao    DateTime? @db.Timestamp()
+  dataCriacao     DateTime  @default(now())
+  dataAtualizacao DateTime  @updatedAt()
+  dataExclusao    DateTime?
 
   cargo   cargo  @relation(fields: [cargoId], references: [id])
   cargoId String
@@ -35,8 +35,8 @@ model curso {
   id              String          @id @default(uuid())
   nome            String
   ementa          String?
-  dataCriacao     DateTime        @default(now()) @db.Timestamp()
-  dataAtualizacao DateTime        @updatedAt() @db.Timestamp()
+  dataCriacao     DateTime        @default(now())
+  dataAtualizacao DateTime        @updatedAt()
   usuario_curso   usuario_curso[]
 }
 
@@ -48,13 +48,13 @@ model usuario_curso {
   curso     curso   @relation(fields: [cursoId], references: [id])
   cursoId   String
 
-  dataCriacao DateTime @default(now()) @db.Timestamp()
+  dataCriacao DateTime @default(now())
 }
 
 model cargo {
   id          String       @id @default(uuid())
   posicao     CargoPosicao @unique
-  dataCriacao DateTime     @default(now()) @db.Timestamp()
+  dataCriacao DateTime     @default(now())
 
   usuario usuario[]
 }
@@ -64,10 +64,10 @@ model evento {
   titulo          String        @db.VarChar(40)
   descricao       String?       @db.VarChar(255)
   codigo          String?       @db.VarChar(12)
-  dataHoraInicio  DateTime      @db.Timestamp()
-  dataHoraTermino DateTime      @db.Timestamp()
-  dataCriacao     DateTime      @default(now()) @db.Timestamp()
-  dataAtualizacao DateTime      @updatedAt @db.Timestamp()
+  dataHoraInicio  DateTime
+  dataHoraTermino DateTime
+  dataCriacao     DateTime      @default(now())
+  dataAtualizacao DateTime      @updatedAt
   certificado     certificado[]
   presenca        presenca[]
 }
@@ -77,8 +77,8 @@ model local {
   titulo          String   @db.VarChar(50)
   descricao       String?  @db.VarChar(255)
   urlImagem       String?
-  dataCriacao     DateTime @default(now()) @db.Timestamp()
-  dataAtualizacao DateTime @updatedAt @db.Timestamp()
+  dataCriacao     DateTime @default(now())
+  dataAtualizacao DateTime @updatedAt
 }
 
 model certificado {
@@ -89,7 +89,7 @@ model certificado {
   usuarioId Int
   eventoId  Int
 
-  dataEmissao DateTime @default(now()) @db.Timestamp()
+  dataEmissao DateTime @default(now())
 }
 
 model presenca {
@@ -97,9 +97,9 @@ model presenca {
 
   usuario   usuario @relation(fields: [usuarioId], references: [id])
   evento    evento  @relation(fields: [eventoId], references: [id])
-  usuarioId Int
-  eventoId  Int
+  usuarioId Int     @unique
+  eventoId  Int     @unique
 
-  dataInscricao DateTime  @default(now()) @db.Timestamp()
-  dataPresenca  DateTime? @db.Timestamp()
+  dataInscricao DateTime  @default(now())
+  dataPresenca  DateTime?
 }

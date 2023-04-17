@@ -1,18 +1,9 @@
-import {
-  Controller,
-  Post,
-  Req,
-  Request,
-  Res,
-  UnauthorizedException,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Post, Req, Res, UseGuards } from '@nestjs/common';
 import {
   ApiBody,
   ApiOkResponse,
   ApiTags,
   ApiUnauthorizedResponse,
-  getSchemaPath,
 } from '@nestjs/swagger';
 import { DefaultResponseDTO } from 'src/shared/dto/default-response.dto';
 import { AuthService } from './auth.service';
@@ -43,9 +34,6 @@ export class AuthController {
   })
   async loginUsuario(@Req() req, @Res() res,): Promise<DefaultResponseDTO<string>> {
     const token = await this.authService.login(req.user);
-
-    const retornoJson = new DefaultResponseDTO<string>(token);
-
-    return res.status(200).json(retornoJson);
+    return res.status(200).json(new DefaultResponseDTO<string>(token));
   }
 }

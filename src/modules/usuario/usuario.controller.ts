@@ -47,13 +47,15 @@ export class UsuarioController {
     required: true,
     schema: {
       default: {
-        codigo: 'CODIGO',
+        codigo: 'codigo',
       },
     },
   })
   @HttpCode(HttpStatus.OK)
   async findByUser(@Param('codigo') codigo: string) {
     const usuario = await this.usuarioService.findOne(codigo);
+
+    //delete usuario.senha;
 
     if (!usuario) {
       throw new NotFoundException('Usuário não encontrado!');
@@ -68,9 +70,10 @@ export class UsuarioController {
     schema: {
       default: {
         codigo: 'codigo',
-        nome: 'nome',
+        cursoId: 'cursoId',
         email: 'email',
         senha: 'senha',
+        confirmarSenha: 'confirmarSenha',
       },
     },
   })
@@ -87,10 +90,11 @@ export class UsuarioController {
     required: true,
     schema: {
       default: {
-        codigo: 'codigo',
         nome: 'nome',
         email: 'email',
         senha: 'senha',
+        novaSenha: 'novaSenha',
+        confirmacaoNovaSenha: 'confirmacaoNovaSenha',
       },
     },
   })
@@ -107,9 +111,7 @@ export class UsuarioController {
   @ApiBody({
     required: true,
     schema: {
-      default: {
-        codigo: 'codigo',
-      },
+      default: {},
     },
   })
   @HttpCode(HttpStatus.ACCEPTED)

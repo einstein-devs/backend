@@ -47,7 +47,11 @@ async function populateDatabase() {
         nome: 'Eduardo Bertoli',
         email: 'eduardo@gmail.com',
         senha: passwordHashed,
-        cargo: CargoPosicao.DIRETOR,
+        cargo: {
+          connect: {
+            posicao: CargoPosicao.DIRETOR,
+          },
+        },
         codigo: '1',
       },
       where: {
@@ -58,6 +62,32 @@ async function populateDatabase() {
   } catch (error) {
     console.log(`Erro ao criar usuario padrao: ${error}`);
   }
+
+  try {
+    await prisma.curso.create({
+      data: {
+        id: '0d3384b6-c0d8-4f24-b73f-006ef840a32e',
+        nome: 'Tecnologo de Analise de Sistemas',
+        ementa: 'Relacionado a informatica!',
+      },
+    });
+    await prisma.usuario_curso.create({
+      data: {
+        curso: {
+          connect: {
+            id: '0d3384b6-c0d8-4f24-b73f-006ef840a32e',
+          },
+        },
+        usuario: {
+          connect: {
+            codigo: '1',
+          },
+        },
+      },
+    });
+  } catch (error) {
+    console.log(`Erro ao criar cursos padroes: ${error}`);
+  }
 }
 
-export default populateDatabase;
+populateDatabase();

@@ -8,9 +8,9 @@ CREATE TABLE "usuario" (
     "nome" VARCHAR(30) NOT NULL,
     "email" VARCHAR(120) NOT NULL,
     "senha" VARCHAR(90) NOT NULL,
-    "dataCriacao" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "dataAtualizacao" TIMESTAMP NOT NULL,
-    "dataExclusao" TIMESTAMP,
+    "dataCriacao" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "dataAtualizacao" TIMESTAMP(3) NOT NULL,
+    "dataExclusao" TIMESTAMP(3),
     "cargoId" TEXT NOT NULL,
 
     CONSTRAINT "usuario_pkey" PRIMARY KEY ("id")
@@ -21,8 +21,8 @@ CREATE TABLE "curso" (
     "id" TEXT NOT NULL,
     "nome" TEXT NOT NULL,
     "ementa" TEXT,
-    "dataCriacao" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "dataAtualizacao" TIMESTAMP NOT NULL,
+    "dataCriacao" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "dataAtualizacao" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "curso_pkey" PRIMARY KEY ("id")
 );
@@ -32,7 +32,7 @@ CREATE TABLE "usuario_curso" (
     "id" SERIAL NOT NULL,
     "usuarioId" INTEGER NOT NULL,
     "cursoId" TEXT NOT NULL,
-    "dataCriacao" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "dataCriacao" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "usuario_curso_pkey" PRIMARY KEY ("id")
 );
@@ -41,7 +41,7 @@ CREATE TABLE "usuario_curso" (
 CREATE TABLE "cargo" (
     "id" TEXT NOT NULL,
     "posicao" "CargoPosicao" NOT NULL,
-    "dataCriacao" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "dataCriacao" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "cargo_pkey" PRIMARY KEY ("id")
 );
@@ -52,10 +52,10 @@ CREATE TABLE "evento" (
     "titulo" VARCHAR(40) NOT NULL,
     "descricao" VARCHAR(255),
     "codigo" VARCHAR(12),
-    "dataHoraInicio" TIMESTAMP NOT NULL,
-    "dataHoraTermino" TIMESTAMP NOT NULL,
-    "dataCriacao" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "dataAtualizacao" TIMESTAMP NOT NULL,
+    "dataHoraInicio" TIMESTAMP(3) NOT NULL,
+    "dataHoraTermino" TIMESTAMP(3) NOT NULL,
+    "dataCriacao" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "dataAtualizacao" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "evento_pkey" PRIMARY KEY ("id")
 );
@@ -66,8 +66,8 @@ CREATE TABLE "local" (
     "titulo" VARCHAR(50) NOT NULL,
     "descricao" VARCHAR(255),
     "urlImagem" TEXT,
-    "dataCriacao" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "dataAtualizacao" TIMESTAMP NOT NULL,
+    "dataCriacao" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "dataAtualizacao" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "local_pkey" PRIMARY KEY ("id")
 );
@@ -77,7 +77,7 @@ CREATE TABLE "certificado" (
     "id" TEXT NOT NULL,
     "usuarioId" INTEGER NOT NULL,
     "eventoId" INTEGER NOT NULL,
-    "dataEmissao" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "dataEmissao" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "certificado_pkey" PRIMARY KEY ("id")
 );
@@ -87,8 +87,8 @@ CREATE TABLE "presenca" (
     "id" TEXT NOT NULL,
     "usuarioId" INTEGER NOT NULL,
     "eventoId" INTEGER NOT NULL,
-    "dataInscricao" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "dataPresenca" TIMESTAMP,
+    "dataInscricao" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "dataPresenca" TIMESTAMP(3),
 
     CONSTRAINT "presenca_pkey" PRIMARY KEY ("id")
 );
@@ -98,6 +98,12 @@ CREATE UNIQUE INDEX "usuario_codigo_key" ON "usuario"("codigo");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "cargo_posicao_key" ON "cargo"("posicao");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "presenca_usuarioId_key" ON "presenca"("usuarioId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "presenca_eventoId_key" ON "presenca"("eventoId");
 
 -- AddForeignKey
 ALTER TABLE "usuario" ADD CONSTRAINT "usuario_cargoId_fkey" FOREIGN KEY ("cargoId") REFERENCES "cargo"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

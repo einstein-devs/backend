@@ -5,12 +5,15 @@ import {
   BadRequestException,
   InternalServerErrorException,
   UnauthorizedException,
+  ConsoleLogger,
 } from '@nestjs/common';
 import { CargoPosicao, Prisma, usuario } from '@prisma/client';
 import { UsuarioDto } from './dto/usuario.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
-import { compare, hash } from 'bcrypt';
+import { compare, compareSync, hash } from 'bcrypt';
+import { error } from 'console';
+import { errorMonitor } from 'events';
 
 @Injectable()
 export class UsuarioService {
@@ -24,6 +27,10 @@ export class UsuarioService {
           email: true,
           nome: true,
           codigo: true,
+          usuario_curso: true,
+          dataCriacao: true,
+          dataAtualizacao: true,
+          dataExclusao: true,
         },
       });
     } catch {
@@ -36,11 +43,20 @@ export class UsuarioService {
   async findOne(codigoDigitado: string) {
     try {
       return await this.prismaService.usuario.findFirstOrThrow({
+        select: {
+          id: true,
+          email: true,
+          nome: true,
+          senha: true,
+          codigo: true,
+          cargoId: true,
+          usuario_curso: true,
+          dataCriacao: true,
+          dataAtualizacao: true,
+          dataExclusao: true,
+        },
         where: {
           codigo: codigoDigitado,
-          dataExclusao: {
-            not: null,
-          },
         },
       });
     } catch {
@@ -52,23 +68,31 @@ export class UsuarioService {
     codigoUsuario: string,
     { email, novaSenha, senha, confirmacaoNovaSenha, nome }: UpdateUsuarioDto,
   ) {
+    const data: Partial<UpdateUsuarioDto> = {};
+
     try {
-      const usuario = await this.findOne(codigoUsuario);
+      const usuario = await this.prismaService.usuario.findFirst({
+        select: { senha: true, dataExclusao: true },
+        where: {
+          codigo: codigoUsuario,
+        },
+      });
 
       if (!usuario || usuario.dataExclusao) {
         throw new NotFoundException('Usuário não encontrado!');
       }
 
       const isValidSenha = await compare(senha, usuario.senha);
+
       if (!isValidSenha) {
         throw new UnauthorizedException('Senha inválida!');
       }
 
-      const data: Partial<usuario> = {};
-
       if (email) {
         data.email = email;
       }
+
+      data.nome = nome;
 
       if (novaSenha && confirmacaoNovaSenha) {
         if (novaSenha == confirmacaoNovaSenha) {
@@ -79,22 +103,14 @@ export class UsuarioService {
         }
       }
 
-      if (nome) {
-        data.nome = nome;
-      }
-
-      usuario;
-
       return await this.prismaService.usuario.update({
         where: {
           codigo: codigoUsuario,
         },
         data: data,
       });
-    } catch {
-      throw new InternalServerErrorException(
-        'Ocorreu um erro ao atualizar usuário!',
-      );
+    } catch (error) {
+      throw error;
     }
   }
 
@@ -123,7 +139,16 @@ export class UsuarioService {
           nome: data.nome,
           email: data.email,
           senha: data.senha,
-          cargo: CargoPosicao.ALUNO,
+          cargo: {
+            connect: {
+              posicao: CargoPosicao.ALUNO,
+            },
+          },
+          usuario_curso: {
+            connect: {
+              id: data.cursoId,
+            },
+          },
         },
       });
     } catch {
