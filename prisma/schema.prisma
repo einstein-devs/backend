@@ -2,6 +2,10 @@ generator client {
   provider = "prisma-client-js"
 }
 
+generator erd {
+  provider = "prisma-erd-generator"
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -14,45 +18,62 @@ enum CargoPosicao {
 }
 
 model usuario {
-  id              Int       @id @default(autoincrement())
-  codigo          String    @unique @db.VarChar(30)
-  nome            String    @db.VarChar(30)
-  email           String    @db.VarChar(120)
-  senha           String    @db.VarChar(90)
-  dataCriacao     DateTime  @default(now())
-  dataAtualizacao DateTime  @updatedAt()
-  dataExclusao    DateTime?
+  id     Int    @id @default(autoincrement())
+  codigo String @unique @db.VarChar(30)
+  nome   String @db.VarChar(70)
+  email  String @db.VarChar(120)
+  senha  String
 
   cargo   cargo  @relation(fields: [cargoId], references: [id])
   cargoId String
 
-  certificado   certificado[]
-  presenca      presenca[]
-  usuario_curso usuario_curso[]
+  curso   curso  @relation(fields: [cursoId], references: [id])
+  cursoId String
+
+  cursoCoordenado   curso?  @relation(name: "coordenador")
+  cursoCoordenadoId String?
+
+  certificado certificado[]
+  presenca    presenca[]
+  centro      centro[]
+
+  dataCriacao     DateTime  @default(now())
+  dataAtualizacao DateTime  @updatedAt()
+  dataExclusao    DateTime?
 }
 
 model curso {
-  id              String          @id @default(uuid())
-  nome            String
-  ementa          String?
-  dataCriacao     DateTime        @default(now())
-  dataAtualizacao DateTime        @updatedAt()
-  usuario_curso   usuario_curso[]
+  id     String  @id @default(uuid()) @db.Uuid()
+  nome   String
+  ementa String?
+
+  centro   centro @relation(fields: [centroId], references: [id])
+  centroId String
+
+  usuario usuario[] @relation()
+
+  coordenador   usuario @relation(name: "coordenador", fields: [coordenadorId], references: [id])
+  coordenadorId Int     @unique
+
+  dataCriacao     DateTime @default(now())
+  dataAtualizacao DateTime @updatedAt()
 }
 
-model usuario_curso {
-  id Int @id @default(autoincrement())
+model centro {
+  id   String @id @default(uuid()) @db.Uuid()
+  nome String @unique @db.VarChar(50)
 
-  usuario   usuario @relation(fields: [usuarioId], references: [id])
-  usuarioId Int
-  curso     curso   @relation(fields: [cursoId], references: [id])
-  cursoId   String
+  curso curso[]
 
-  dataCriacao DateTime @default(now())
+  diretor   usuario @relation(fields: [diretorId], references: [id])
+  diretorId Int
+
+  dataCriacao     DateTime @default(now())
+  dataAtualizacao DateTime @updatedAt()
 }
 
 model cargo {
-  id          String       @id @default(uuid())
+  id          String       @id @default(uuid()) @db.Uuid()
   posicao     CargoPosicao @unique
   dataCriacao DateTime     @default(now())
 
@@ -60,29 +81,31 @@ model cargo {
 }
 
 model evento {
-  id              Int           @id @default(autoincrement())
-  titulo          String        @db.VarChar(40)
-  descricao       String?       @db.VarChar(255)
-  codigo          String?       @db.VarChar(12)
+  id              Int      @id @default(autoincrement())
+  titulo          String   @db.VarChar(40)
+  descricao       String?  @db.VarChar(255)
+  codigo          String?  @db.VarChar(12)
+  urlImagem       String?
   dataHoraInicio  DateTime
   dataHoraTermino DateTime
-  dataCriacao     DateTime      @default(now())
-  dataAtualizacao DateTime      @updatedAt
-  certificado     certificado[]
-  presenca        presenca[]
+
+  certificado certificado[]
+  presenca    presenca[]
+
+  dataCriacao     DateTime @default(now())
+  dataAtualizacao DateTime @updatedAt
 }
 
 model local {
   id              Int      @id @default(autoincrement())
   titulo          String   @db.VarChar(50)
   descricao       String?  @db.VarChar(255)
-  urlImagem       String?
   dataCriacao     DateTime @default(now())
   dataAtualizacao DateTime @updatedAt
 }
 
 model certificado {
-  id String @id @default(uuid())
+  id String @id @default(uuid()) @db.Uuid()
 
   usuario   usuario @relation(fields: [usuarioId], references: [id])
   evento    evento  @relation(fields: [eventoId], references: [id])
@@ -93,7 +116,7 @@ model certificado {
 }
 
 model presenca {
-  id String @id @default(uuid())
+  id String @id @default(uuid()) @db.Uuid()
 
   usuario   usuario @relation(fields: [usuarioId], references: [id])
   evento    evento  @relation(fields: [eventoId], references: [id])
