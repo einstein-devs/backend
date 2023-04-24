@@ -18,29 +18,29 @@ enum CargoPosicao {
 }
 
 model usuario {
-  id     Int    @id @default(autoincrement())
+  id     String @id @default(uuid()) @db.Uuid()
   codigo String @unique @db.VarChar(30)
   nome   String @db.VarChar(70)
   email  String @db.VarChar(120)
   senha  String
 
   cargo   cargo  @relation(fields: [cargoId], references: [id])
-  cargoId String @map("id_cargo")
+  cargoId String @map("id_cargo") @db.Uuid()
 
   curso   curso  @relation(fields: [cursoId], references: [id])
-  cursoId String @map("id_curso")
+  cursoId String @map("id_curso") @db.Uuid()
 
   cursoCoordenado   curso?  @relation(name: "coordenador")
-  cursoCoordenadoId String?
+  cursoCoordenadoId String? @map("id_curso_coordenado") @db.Uuid()
 
   certificado certificado[]
   presenca    presenca[]
   centro      centro[]
+  evento      evento[]
 
   dataCriacao     DateTime  @default(now()) @map("data_criacao")
   dataAtualizacao DateTime  @updatedAt() @map("data_atualizacao")
   dataExclusao    DateTime? @map("data_exclusao")
-  evento          evento[]
 }
 
 model curso {
@@ -51,9 +51,9 @@ model curso {
   usuario usuario[] @relation()
 
   centro        centro  @relation(fields: [centroId], references: [id])
-  centroId      String  @map("id_centro")
+  centroId      String  @map("id_centro") @db.Uuid()
   coordenador   usuario @relation(name: "coordenador", fields: [coordenadorId], references: [id])
-  coordenadorId Int     @unique @map("id_coordenador")
+  coordenadorId String  @unique @map("id_coordenador") @db.Uuid()
 
   dataCriacao     DateTime @default(now()) @map("data_criacao")
   dataAtualizacao DateTime @updatedAt() @map("data_atualizacao")
@@ -66,14 +66,15 @@ model centro {
   curso curso[]
 
   diretor   usuario @relation(fields: [diretorId], references: [id])
-  diretorId Int
+  diretorId String  @map("id_diretor") @db.Uuid()
 
   dataCriacao     DateTime @default(now()) @map("data_criacao")
   dataAtualizacao DateTime @updatedAt() @map("data_atualizacao")
 }
 
 model cargo {
-  id      String       @id @default(uuid()) @db.Uuid()
+  id String @id @default(uuid()) @db.Uuid()
+
   posicao CargoPosicao @unique
   usuario usuario[]
 
@@ -81,7 +82,8 @@ model cargo {
 }
 
 model evento {
-  id              Int      @id @default(autoincrement())
+  id String @id @default(uuid()) @db.Uuid()
+
   titulo          String   @db.VarChar(40)
   descricao       String?  @db.VarChar(255)
   codigo          String?  @db.VarChar(12)
@@ -92,21 +94,23 @@ model evento {
   certificado certificado[]
   presenca    presenca[]
 
-  local   local @relation(fields: [localId], references: [id])
-  localId Int   @map("id_local")
+  local   local  @relation(fields: [localId], references: [id])
+  localId String @map("id_local") @db.Uuid()
 
   usuario   usuario @relation(fields: [usuarioId], references: [id])
-  usuarioId Int     @map("id_usuario")
+  usuarioId String  @map("id_usuario") @db.Uuid()
 
   dataCriacao     DateTime @default(now()) @map("data_criacao")
   dataAtualizacao DateTime @updatedAt() @map("data_atualizacao")
 }
 
 model local {
-  id              Int      @id @default(autoincrement())
-  titulo          String   @db.VarChar(50)
-  descricao       String?  @db.VarChar(255)
-  evento          evento[]
+  id String @id @default(uuid()) @db.Uuid()
+
+  titulo    String   @db.VarChar(50)
+  descricao String?  @db.VarChar(255)
+  evento    evento[]
+
   dataCriacao     DateTime @default(now()) @map("data_criacao")
   dataAtualizacao DateTime @updatedAt() @map("data_atualizacao")
 }
@@ -116,8 +120,8 @@ model certificado {
 
   usuario   usuario @relation(fields: [usuarioId], references: [id])
   evento    evento  @relation(fields: [eventoId], references: [id])
-  usuarioId Int     @map("id_usuario")
-  eventoId  Int     @map("id_evento")
+  usuarioId String  @map("id_usuario") @db.Uuid()
+  eventoId  String  @map("id_evento") @db.Uuid()
 
   dataEmissao DateTime @default(now()) @map("data_emissao")
 }
@@ -127,8 +131,8 @@ model presenca {
 
   usuario   usuario @relation(fields: [usuarioId], references: [id])
   evento    evento  @relation(fields: [eventoId], references: [id])
-  usuarioId Int     @unique @map("id_usuario")
-  eventoId  Int     @unique @map("id_evento")
+  usuarioId String  @unique @map("id_usuario") @db.Uuid()
+  eventoId  String  @unique @map("id_evento") @db.Uuid()
 
   dataInscricao DateTime  @default(now()) @map("data_inscricao")
   dataPresenca  DateTime? @map("data_presenca")
