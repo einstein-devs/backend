@@ -9,12 +9,6 @@ import { ApiBody } from '@nestjs/swagger';
 export class EventController {
     constructor (private readonly eventService: EventService){}
 
-    //Teste de rota         
-    @Get()
-    getHello(): string {
-        return 'Hello World';
-    }
-
     // Criação de eventos
     @Post('/create')
     async postEvent(@Body() createEventDto: eventDTO) {
