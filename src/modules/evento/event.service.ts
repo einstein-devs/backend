@@ -1,6 +1,7 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { eventDTO } from './dto/create-evento-dto';
+import { updateDTO } from './dto/update-evento-dto';
 
 @Injectable()
 export class EventService {
@@ -30,6 +31,20 @@ export class EventService {
       return await this.prismaService.evento.findMany();
     } catch {
       throw new BadRequestException('Ocorreu um erro ao listar os eventos');
+    }
+  }
+
+  //Alteração de eventos
+  async updateEvent(id: number, updateEventDto: Partial<any>): Promise<any> {
+    try {
+      return await this.prismaService.evento.update({
+        where: {
+          id,
+        },
+        data: updateEventDto,
+      });
+    } catch {
+      throw new BadRequestException('Ocorreu um erro ao alterar os eventos');
     }
   }
 }

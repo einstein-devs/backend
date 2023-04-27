@@ -2,12 +2,15 @@ import { Type } from 'class-transformer';
 import {
   IsInt,
   IsNotEmpty,
+  IsNumber,
   IsOptional,
   IsString,
-  IsNumber,
 } from 'class-validator';
 
-export class eventDTO {
+export class updateDTO {
+  @IsNumber()
+  id: number;
+
   @IsNotEmpty()
   codigo: string;
 
@@ -16,10 +19,4 @@ export class eventDTO {
 
   @IsNotEmpty()
   descricao: string;
-
-  @IsNotEmpty()
-  dataHoraInicio: Date;
-
-  @IsNotEmpty()
-  dataHoraTermino: Date;
 }

@@ -2,6 +2,7 @@ import {
   Controller,
   Post,
   Get,
+  Put,
   Patch,
   Delete,
   Body,
@@ -13,6 +14,7 @@ import { eventDTO } from './dto/create-evento-dto';
 import { stringify } from 'querystring';
 import { ApiBody } from '@nestjs/swagger';
 import { DefaultResponseDTO } from 'src/shared/dto/default-response.dto';
+import { updateDTO } from './dto/update-evento-dto';
 
 @Controller('/eventos')
 export class EventController {
@@ -30,5 +32,11 @@ export class EventController {
   async findMany() {
     const events = await this.eventService.findMany();
     return new DefaultResponseDTO(events, 'Eventos retornados com sucesso');
+  }
+
+  //Alteração de eventos
+  @Put(':id')
+  async updateEvent(@Param('id') id: number, @Body() data: updateDTO) {
+    return await this.eventService.updateEvent(Number(id), data);
   }
 }
