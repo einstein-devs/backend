@@ -1,14 +1,14 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { eventDTO } from './dto/create-evento-dto';
-import { updateEventoDTO } from './dto/update-evento-dto';
+import { CreateEventDto } from './dto/create-evento-dto';
+import { UpdateEventoDTO } from './dto/update-evento-dto';
 
 @Injectable()
 export class EventoService {
   constructor(private readonly prismaService: PrismaService) {}
 
   //Criação de eventos
-  async createEvent(data: eventDTO) {
+  async createEvent(data: CreateEventDto) {
     try {
       const eventCreate = await this.prismaService.evento.create({
         data: {
