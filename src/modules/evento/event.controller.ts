@@ -8,17 +8,17 @@ import {
   Body,
   Param,
 } from '@nestjs/common';
-import { EventService } from './event.service';
-import { ParamsGetEvento } from './dto/params-post-eventos';
+import { EventoService } from './event.service';
+import { ParamsGetEventoDto } from './dto/params-post-eventos';
 import { eventDTO } from './dto/create-evento-dto';
 import { stringify } from 'querystring';
 import { ApiBody } from '@nestjs/swagger';
 import { DefaultResponseDTO } from 'src/shared/dto/default-response.dto';
-import { updateDTO } from './dto/update-evento-dto';
+import { updateEventoDTO } from './dto/update-evento-dto';
 
 @Controller('/eventos')
-export class EventController {
-  constructor(private readonly eventService: EventService) {}
+export class EventoController {
+  constructor(private readonly eventService: EventoService) {}
 
   // Criação de eventos
   @Post('/create')
@@ -43,7 +43,7 @@ export class EventController {
 
   //Alteração de eventos
   @Put('/update/:id')
-  async updateEvent(@Param('id') id: number, @Body() data: updateDTO) {
+  async updateEvent(@Param('id') id: number, @Body() data: updateEventoDTO) {
     return await this.eventService.updateEvent(Number(id), data);
   }
 

@@ -7,7 +7,7 @@ import {
   IsString,
 } from 'class-validator';
 
-export class updateDTO {
+export class updateEventoDTO {
   @IsNumber()
   id: number;
 

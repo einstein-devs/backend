@@ -9,12 +9,16 @@ import {
 } from 'class-validator';
 
 export class eventDTO {
+  @IsString()
   @IsNotEmpty()
   codigo: string;
 
+  @IsString()
   @IsNotEmpty()
   titulo: string;
 
+  @IsString()
+  @IsOptional()
   @IsNotEmpty()
   descricao: string;
 
