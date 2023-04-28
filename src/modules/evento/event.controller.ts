@@ -34,9 +34,30 @@ export class EventController {
     return new DefaultResponseDTO(events, 'Eventos retornados com sucesso');
   }
 
+  //Listagem de evento unico
+  @Get('/consulta/:id')
+  async findUnique(@Param('id') id: Number) {
+    const events = await this.eventService.findUnique(Number(id));
+    return new DefaultResponseDTO(events, 'Evento retornado com sucesso');
+  }
+
   //Alteração de eventos
-  @Put(':id')
+  @Put('/update/:id')
   async updateEvent(@Param('id') id: number, @Body() data: updateDTO) {
     return await this.eventService.updateEvent(Number(id), data);
+  }
+
+  //Remoção de eventos
+  @Delete('/delete')
+  async deleteManyEvent() {
+    const events = await this.eventService.deleteManyEvent();
+    return new DefaultResponseDTO(events, 'Eventos excluídos com sucesso');
+  }
+
+  //Remoção de evento único
+  @Delete('/delete/:id')
+  async deleteEvent(@Param('id') id: number) {
+    const events = await this.eventService.deleteEvent(Number(id));
+    return new DefaultResponseDTO(events, 'Evento excluído com sucesso');
   }
 }

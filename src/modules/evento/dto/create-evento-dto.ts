@@ -5,6 +5,7 @@ import {
   IsOptional,
   IsString,
   IsNumber,
+  IsDate,
 } from 'class-validator';
 
 export class eventDTO {
@@ -17,9 +18,13 @@ export class eventDTO {
   @IsNotEmpty()
   descricao: string;
 
+  @IsDate()
+  @Type(() => Date)
   @IsNotEmpty()
   dataHoraInicio: Date;
 
+  @IsDate()
+  @Type(() => Date)
   @IsNotEmpty()
   dataHoraTermino: Date;
 }

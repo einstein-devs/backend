@@ -34,6 +34,19 @@ export class EventService {
     }
   }
 
+  //Listagem de evento único
+  async findUnique(id: number) {
+    try {
+      return await this.prismaService.evento.findUnique({
+        where: {
+          id: id,
+        },
+      });
+    } catch {
+      throw new BadRequestException('Ocorreu um erro ao listar o evento');
+    }
+  }
+
   //Alteração de eventos
   async updateEvent(id: number, updateEventDto: Partial<any>): Promise<any> {
     try {
@@ -45,6 +58,28 @@ export class EventService {
       });
     } catch {
       throw new BadRequestException('Ocorreu um erro ao alterar os eventos');
+    }
+  }
+
+  //Remoção de eventos
+  async deleteManyEvent() {
+    try {
+      return await this.prismaService.evento.deleteMany();
+    } catch {
+      throw new BadRequestException('Ocorreu um erro ao excluir os eventos');
+    }
+  }
+
+  //Remoção de evento único
+  async deleteEvent(id: number) {
+    try {
+      return await this.prismaService.evento.delete({
+        where: {
+          id: id,
+        },
+      });
+    } catch {
+      throw new BadRequestException('Ocorreu um erro ao excluir o evento');
     }
   }
 }
