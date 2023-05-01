@@ -1,0 +1,10 @@
+version: "1"
+
+services:
+  postgres:
+    image: postgres:12
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=Docker
+      - POSTGRES_USER=postgres
