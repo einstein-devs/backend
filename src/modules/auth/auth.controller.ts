@@ -12,7 +12,7 @@ import { LocalAuthGuard } from './guards/local-auth.guard';
 @ApiTags('AuthController')
 @Controller('/auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
 
   @UseGuards(LocalAuthGuard)
   @Post()
@@ -32,10 +32,7 @@ export class AuthController {
     description:
       'Quando login invalido, retorna a mensagem: Código ou senha inválidos',
   })
-  async loginUsuario(
-    @Req() req,
-    @Res() res,
-  ): Promise<DefaultResponseDTO<string>> {
+  async loginUsuario(@Req() req, @Res() res,): Promise<DefaultResponseDTO<string>> {
     const token = await this.authService.login(req.user);
     return res.status(200).json(new DefaultResponseDTO<string>(token));
   }
