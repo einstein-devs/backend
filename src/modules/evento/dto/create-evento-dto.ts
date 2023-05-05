@@ -1,34 +1,42 @@
 import { Type } from 'class-transformer';
 import {
-  IsInt,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-  IsNumber,
-  IsDate,
+    IsInt,
+    IsNotEmpty,
+    IsOptional,
+    IsString,
+    IsNumber,
+    IsDate,
 } from 'class-validator';
 
 export class CreateEventDto {
-  @IsString()
-  @IsNotEmpty()
-  codigo: string;
+    @IsString()
+    @IsNotEmpty()
+    codigo: string;
 
-  @IsString()
-  @IsNotEmpty()
-  titulo: string;
+    @IsString()
+    @IsNotEmpty()
+    localId: string;
 
-  @IsString()
-  @IsOptional()
-  @IsNotEmpty()
-  descricao: string;
+    @IsString()
+    @IsNotEmpty()
+    usuarioId: string;
 
-  @IsDate()
-  @Type(() => Date)
-  @IsNotEmpty()
-  dataHoraInicio: Date;
+    @IsString()
+    @IsNotEmpty()
+    titulo: string;
 
-  @IsDate()
-  @Type(() => Date)
-  @IsNotEmpty()
-  dataHoraTermino: Date;
+    @IsString()
+    @IsOptional()
+    @IsNotEmpty()
+    descricao?: string;
+
+    @IsDate()
+    @Type(() => Date)
+    @IsNotEmpty()
+    dataHoraInicio: Date;
+
+    @IsDate()
+    @Type(() => Date)
+    @IsNotEmpty()
+    dataHoraTermino: Date;
 }

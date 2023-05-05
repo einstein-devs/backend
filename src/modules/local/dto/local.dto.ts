@@ -16,9 +16,4 @@ export class LocalDto {
     @IsNotEmpty()
     @IsOptional()
     descricao: string;
-
-    @IsUrl()
-    @IsNotEmpty()
-    @IsOptional()
-    urlImagem: string;
 }

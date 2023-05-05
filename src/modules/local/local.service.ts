@@ -8,7 +8,7 @@ import { UpdateLocalDto } from './dto/update-local.dto';
 export class LocalService {
     constructor(private prisma: PrismaService) {}
 
-    async findMany(): Promise<any[]> {
+    async findMany() {
         try {
             return await this.prisma.local.findMany();
         } catch {
@@ -18,7 +18,7 @@ export class LocalService {
         }
     }
 
-    async findUnique(id: number): Promise<any> {
+    async findUnique(id: string) {
         try {
             return await this.prisma.local.findUnique({
                 where: {
@@ -32,13 +32,12 @@ export class LocalService {
         }
     }
 
-    async create(localData: LocalDto): Promise<any> {
+    async create(localData: LocalDto) {
         try {
             return await this.prisma.local.create({
                 data: {
                     titulo: localData.titulo,
                     descricao: localData.descricao,
-                    urlImagem: localData.urlImagem,
                 },
             });
         } catch {
@@ -48,7 +47,7 @@ export class LocalService {
         }
     }
 
-    async update(id: number, data: UpdateLocalDto) {
+    async update(id: string, data: UpdateLocalDto) {
         try {
             return await this.prisma.local.update({
                 where: {
@@ -63,9 +62,9 @@ export class LocalService {
         }
     }
 
-    async delete(id: number): Promise<void> {
+    async delete(id: string): Promise<void> {
         try {
-            await await this.prisma.local.delete({
+            await this.prisma.local.delete({
                 where: {
                     id,
                 },

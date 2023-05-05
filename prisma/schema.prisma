@@ -14,92 +14,122 @@ enum CargoPosicao {
 }
 
 model usuario {
-  id              Int       @id @default(autoincrement())
-  codigo          String    @unique @db.VarChar(30)
-  nome            String    @db.VarChar(30)
-  email           String    @db.VarChar(120)
-  senha           String    @db.VarChar(90)
-  dataCriacao     DateTime  @default(now())
-  dataAtualizacao DateTime  @updatedAt()
-  dataExclusao    DateTime?
+  id     String @id @default(uuid()) @db.Uuid()
+  codigo String @unique @db.VarChar(30)
+  nome   String @db.VarChar(70)
+  email  String @db.VarChar(120)
+  senha  String
 
   cargo   cargo  @relation(fields: [cargoId], references: [id])
-  cargoId String
+  cargoId String @map("id_cargo") @db.Uuid()
 
-  certificado   certificado[]
-  presenca      presenca[]
-  usuario_curso usuario_curso[]
+  curso   curso?  @relation(fields: [cursoId], references: [id])
+  cursoId String? @map("id_curso") @db.Uuid()
+
+  cursoCoordenado   curso?  @relation(name: "coordenador")
+  cursoCoordenadoId String? @map("id_curso_coordenado") @db.Uuid()
+
+  certificado certificado[]
+  presenca    presenca[]
+  centro      centro[]
+  evento      evento[]
+
+  dataCriacao     DateTime  @default(now()) @map("data_criacao")
+  dataAtualizacao DateTime  @updatedAt() @map("data_atualizacao")
+  dataExclusao    DateTime? @map("data_exclusao")
 }
 
 model curso {
-  id              String          @id @default(uuid())
-  nome            String
-  ementa          String?
-  dataCriacao     DateTime        @default(now())
-  dataAtualizacao DateTime        @updatedAt()
-  usuario_curso   usuario_curso[]
+  id     String  @id @default(uuid()) @db.Uuid()
+  nome   String  @db.VarChar(70)
+  ementa String? @db.VarChar(100)
+
+  usuario usuario[] @relation()
+
+  centro        centro  @relation(fields: [centroId], references: [id])
+  centroId      String  @map("id_centro") @db.Uuid()
+  coordenador   usuario @relation(name: "coordenador", fields: [coordenadorId], references: [id])
+  coordenadorId String  @unique @map("id_coordenador") @db.Uuid()
+
+  dataCriacao     DateTime @default(now()) @map("data_criacao")
+  dataAtualizacao DateTime @updatedAt() @map("data_atualizacao")
 }
 
-model usuario_curso {
-  id Int @id @default(autoincrement())
+model centro {
+  id   String @id @default(uuid()) @db.Uuid()
+  nome String @unique @db.VarChar(50)
 
-  usuario   usuario @relation(fields: [usuarioId], references: [id])
-  usuarioId Int
-  curso     curso   @relation(fields: [cursoId], references: [id])
-  cursoId   String
+  curso curso[]
 
-  dataCriacao DateTime @default(now())
+  diretor   usuario @relation(fields: [diretorId], references: [id])
+  diretorId String  @map("id_diretor") @db.Uuid()
+
+  dataCriacao     DateTime @default(now()) @map("data_criacao")
+  dataAtualizacao DateTime @updatedAt() @map("data_atualizacao")
 }
 
 model cargo {
-  id          String       @id @default(uuid())
-  posicao     CargoPosicao @unique
-  dataCriacao DateTime     @default(now())
+  id String @id @default(uuid()) @db.Uuid()
 
+  posicao CargoPosicao @unique
   usuario usuario[]
+
+  dataCriacao DateTime @default(now()) @map("data_criacao")
 }
 
 model evento {
-  id              Int           @id @default(autoincrement())
-  titulo          String        @db.VarChar(40)
-  descricao       String?       @db.VarChar(255)
-  codigo          String?       @db.VarChar(12)
-  dataHoraInicio  DateTime
-  dataHoraTermino DateTime
-  dataCriacao     DateTime      @default(now())
-  dataAtualizacao DateTime      @updatedAt
-  certificado     certificado[]
-  presenca        presenca[]
+  id String @id @default(uuid()) @db.Uuid()
+
+  titulo          String   @db.VarChar(40)
+  descricao       String?  @db.VarChar(255)
+  codigo          String?  @db.VarChar(12)
+  urlImagem       String?  @map("url_imagem")
+  dataHoraInicio  DateTime @map("data_hora_inicio")
+  dataHoraTermino DateTime @map("data_hora_termino")
+
+  certificado certificado[]
+  presenca    presenca[]
+
+  local   local  @relation(fields: [localId], references: [id])
+  localId String @map("id_local") @db.Uuid()
+
+  usuario   usuario @relation(fields: [usuarioId], references: [id])
+  usuarioId String  @map("id_usuario") @db.Uuid()
+
+  dataCriacao     DateTime @default(now()) @map("data_criacao")
+  dataAtualizacao DateTime @updatedAt() @map("data_atualizacao")
 }
 
 model local {
-  id              Int      @id @default(autoincrement())
-  titulo          String   @db.VarChar(50)
-  descricao       String?  @db.VarChar(255)
-  urlImagem       String?
-  dataCriacao     DateTime @default(now())
-  dataAtualizacao DateTime @updatedAt
+  id String @id @default(uuid()) @db.Uuid()
+
+  titulo    String   @db.VarChar(50)
+  descricao String?  @db.VarChar(255)
+  evento    evento[]
+
+  dataCriacao     DateTime @default(now()) @map("data_criacao")
+  dataAtualizacao DateTime @updatedAt() @map("data_atualizacao")
 }
 
 model certificado {
-  id String @id @default(uuid())
+  id String @id @default(uuid()) @db.Uuid()
 
   usuario   usuario @relation(fields: [usuarioId], references: [id])
   evento    evento  @relation(fields: [eventoId], references: [id])
-  usuarioId Int
-  eventoId  Int
+  usuarioId String  @map("id_usuario") @db.Uuid()
+  eventoId  String  @map("id_evento") @db.Uuid()
 
-  dataEmissao DateTime @default(now())
+  dataEmissao DateTime @default(now()) @map("data_emissao")
 }
 
 model presenca {
-  id String @id @default(uuid())
+  id String @id @default(uuid()) @db.Uuid()
 
   usuario   usuario @relation(fields: [usuarioId], references: [id])
   evento    evento  @relation(fields: [eventoId], references: [id])
-  usuarioId Int     @unique
-  eventoId  Int     @unique
+  usuarioId String  @unique @map("id_usuario") @db.Uuid()
+  eventoId  String  @unique @map("id_evento") @db.Uuid()
 
-  dataInscricao DateTime  @default(now())
-  dataPresenca  DateTime?
+  dataInscricao DateTime  @default(now()) @map("data_inscricao")
+  dataPresenca  DateTime? @map("data_presenca")
 }

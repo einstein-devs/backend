@@ -6,42 +6,42 @@ import { PresencaService } from './presenca.service';
 
 @Controller('/presencas')
 export class PresencaController {
-  constructor(private readonly presencaService: PresencaService) {}
+    constructor(private readonly presencaService: PresencaService) {}
 
-  @UseGuards(JwtAuthGuard)
-  @Post(':eventoId')
-  async postPresenca(
-    @Req() request,
-    @Param() { eventoId }: ParamsPostPresencaDTO,
-  ) {
-    const usuarioId: number = request.user.id;
-    const inscricaoCriada = await this.presencaService.createPresenca(
-      eventoId,
-      usuarioId,
-    );
+    @UseGuards(JwtAuthGuard)
+    @Post(':eventoId')
+    async postPresenca(
+        @Req() request,
+        @Param() { eventoId }: ParamsPostPresencaDTO,
+    ) {
+        const usuarioId: string = request.user.id;
+        const inscricaoCriada = await this.presencaService.createPresenca(
+            eventoId,
+            usuarioId,
+        );
 
-    return new DefaultResponseDTO(
-      inscricaoCriada,
-      'A inscrição foi confirmada com sucesso!',
-    );
-  }
+        return new DefaultResponseDTO(
+            inscricaoCriada,
+            'A inscrição foi confirmada com sucesso!',
+        );
+    }
 
-  @UseGuards(JwtAuthGuard)
-  @Post('/confirmar/:eventoId')
-  async postConfirmarPresenca(
-    @Req() request,
-    @Param() { eventoId, codigo }: ParamsPostPresencaDTO,
-  ) {
-    const usuarioId: number = request.user.id;
-    const presencaConfirmada = await this.presencaService.confirmarPresenca(
-      eventoId,
-      usuarioId,
-      codigo,
-    );
+    @UseGuards(JwtAuthGuard)
+    @Post('/confirmar/:eventoId')
+    async postConfirmarPresenca(
+        @Req() request,
+        @Param() { eventoId, codigo }: ParamsPostPresencaDTO,
+    ) {
+        const usuarioId: string = request.user.id;
+        const presencaConfirmada = await this.presencaService.confirmarPresenca(
+            eventoId,
+            usuarioId,
+            codigo,
+        );
 
-    return new DefaultResponseDTO(
-      presencaConfirmada,
-      'A presença foi confirmada com sucesso!',
-    );
-  }
+        return new DefaultResponseDTO(
+            presencaConfirmada,
+            'A presença foi confirmada com sucesso!',
+        );
+    }
 }

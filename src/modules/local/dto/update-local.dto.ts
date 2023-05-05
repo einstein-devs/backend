@@ -9,7 +9,7 @@ import { PrismaClient } from '@prisma/client';
 
 export class UpdateLocalDto {
     @IsNumber()
-    id: number;
+    id: string;
 
     @IsString()
     @IsOptional()
