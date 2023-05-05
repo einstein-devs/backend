@@ -1,19 +1,34 @@
 import { Type } from 'class-transformer';
-import { IsInt, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import {
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsNumber,
+  IsDate,
+} from 'class-validator';
 
-export class eventDTO{
-    @IsNotEmpty()
-    codigo: string;
+export class CreateEventDto {
+  @IsString()
+  @IsNotEmpty()
+  codigo: string;
 
-    @IsNotEmpty()
-    titulo: string;
+  @IsString()
+  @IsNotEmpty()
+  titulo: string;
 
-    @IsNotEmpty()
-    descricao: string;
+  @IsString()
+  @IsOptional()
+  @IsNotEmpty()
+  descricao: string;
 
-    @IsNotEmpty()
-    dataHoraInicio: Date;
+  @IsDate()
+  @Type(() => Date)
+  @IsNotEmpty()
+  dataHoraInicio: Date;
 
-    @IsNotEmpty()
-    dataHoraTermino: Date;
+  @IsDate()
+  @Type(() => Date)
+  @IsNotEmpty()
+  dataHoraTermino: Date;
 }
