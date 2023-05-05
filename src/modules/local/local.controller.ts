@@ -6,12 +6,15 @@ import {
     Param,
     Post,
     Put,
+    UseGuards,
 } from '@nestjs/common';
 import { LocalService } from './local.service';
 import { LocalDto } from './dto/local.dto';
 import { UpdateLocalDto } from './dto/update-local.dto';
 import { DefaultResponseDTO } from 'src/shared/dto/default-response.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('/locais')
 export class LocalController {
     constructor(private readonly localService: LocalService) {}
@@ -45,6 +48,7 @@ export class LocalController {
         const localCriado = await this.localService.create(localData);
         return new DefaultResponseDTO(localCriado, 'Local criado com sucesso!');
     }
+
     @Get()
     async findMany() {
         const locais = await this.localService.findMany();

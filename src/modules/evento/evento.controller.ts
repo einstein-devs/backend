@@ -9,6 +9,7 @@ import {
     Param,
     HttpCode,
     HttpStatus,
+    UseGuards,
 } from '@nestjs/common';
 import { EventoService } from './evento.service';
 import { ParamsGetEventoDto } from './dto/params-post-eventos';
@@ -17,12 +18,13 @@ import { stringify } from 'querystring';
 import { ApiBody } from '@nestjs/swagger';
 import { DefaultResponseDTO } from 'src/shared/dto/default-response.dto';
 import { UpdateEventoDTO } from './dto/update-evento-dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('/eventos')
 export class EventoController {
     constructor(private readonly eventService: EventoService) {}
 
-    // Criação de eventos
+    @UseGuards(JwtAuthGuard)
     @Post()
     async postEvent(@Body() createEventDto: CreateEventDto) {
         const eventCreate = await this.eventService.createEvent(createEventDto);
@@ -45,7 +47,7 @@ export class EventoController {
         return new DefaultResponseDTO(events, 'Evento retornado com sucesso');
     }
 
-    //Alteração de eventos
+    @UseGuards(JwtAuthGuard)
     @Put('/:id')
     @HttpCode(HttpStatus.OK)
     async updateEvent(@Param('id') id: string, @Body() data: UpdateEventoDTO) {
@@ -53,7 +55,7 @@ export class EventoController {
         return new DefaultResponseDTO(event, 'Evento atualizado com sucesso');
     }
 
-    //Remoção de evento único
+    @UseGuards(JwtAuthGuard)
     @Delete('/:id')
     @HttpCode(HttpStatus.OK)
     async deleteEvent(@Param('id') id: string) {
