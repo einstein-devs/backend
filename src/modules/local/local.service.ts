@@ -62,7 +62,7 @@ export class LocalService {
         }
     }
 
-    async delete(id: string): Promise<void> {
+    async delete(id: string) {
         try {
             await this.prisma.local.delete({
                 where: {

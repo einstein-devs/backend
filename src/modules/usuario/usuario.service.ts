@@ -19,6 +19,29 @@ import { errorMonitor } from 'events';
 export class UsuarioService {
     constructor(private readonly prismaService: PrismaService) {}
 
+    async hasCargoPermission(filtros: {
+        idUsuario: string;
+        cargos: string[];
+    }): Promise<boolean> {
+        try {
+            const usuario = await this.prismaService.usuario.findUnique({
+                select: {
+                    cargo: true,
+                },
+                where: {
+                    id: filtros.idUsuario,
+                },
+            });
+            console.log(usuario.cargo);
+
+            return filtros.cargos.includes(usuario.cargo.posicao);
+        } catch {
+            throw new UnauthorizedException(
+                'Ocorreu um erro ao validar cargo!',
+            );
+        }
+    }
+
     async findAll() {
         try {
             return await this.prismaService.usuario.findMany({

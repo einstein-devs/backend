@@ -4,7 +4,7 @@ import { PresencaController } from './presenca.controller';
 import { PresencaService } from './presenca.service';
 
 @Module({
-  controllers: [PresencaController],
-  providers: [PresencaService, PrismaService],
+    controllers: [PresencaController],
+    providers: [PresencaService],
 })
 export class PresencaModule {}

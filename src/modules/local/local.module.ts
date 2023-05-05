@@ -6,6 +6,6 @@ import { PrismaService } from '../prisma/prisma.service';
 
 @Module({
     controllers: [LocalController],
-    providers: [LocalService, PrismaService],
+    providers: [LocalService],
 })
 export class LocalModule {}
