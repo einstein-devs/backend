@@ -8,11 +8,13 @@ import { APP_GUARD } from '@nestjs/core';
 import { CargoGuard } from './guards/cargo.guard';
 import { UsuarioService } from './modules/usuario/usuario.service';
 import { PrismaService } from './modules/prisma/prisma.service';
+import { CertificadoModule } from './modules/certificado/certificado.module';
 
 @Global()
 @Module({
     imports: [
         LocalModule,
+        CertificadoModule,
         AuthModule,
         PresencaModule,
         EventoModule,

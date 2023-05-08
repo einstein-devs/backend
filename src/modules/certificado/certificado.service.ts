@@ -3,6 +3,7 @@ import {
     Injectable,
     NotFoundException,
 } from '@nestjs/common';
+import { CargoPosicao } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateCertificadoDto } from './dtos/create-certificado.dto';
 
@@ -11,6 +12,37 @@ export class CertificadoService {
     constructor(private readonly prismaService: PrismaService) {}
 
     async getCertificados(usuarioId: string) {
+        try {
+            const usuario = await this.prismaService.usuario.findUnique({
+                include: {
+                    cargo: true,
+                },
+                where: {
+                    id: usuarioId,
+                },
+            });
+
+            if (usuario.cargo.posicao == CargoPosicao.COORDENADOR) {
+                return await this.prismaService.certificado.findMany({
+                    where: {
+                        usuario: {
+                            curso: {
+                                id: usuario.cursoCoordenadoId,
+                            },
+                        },
+                    },
+                });
+            } else {
+                return await this.prismaService.certificado.findMany();
+            }
+        } catch {
+            throw new BadRequestException(
+                'Ocorreu um erro ao buscar todos os certificados!',
+            );
+        }
+    }
+
+    async getMeusCertificados(usuarioId: string) {
         try {
             const certificados = await this.prismaService.certificado.findMany({
                 where: {
