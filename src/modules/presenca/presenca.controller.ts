@@ -27,7 +27,7 @@ export class PresencaController {
     }
 
     @UseGuards(JwtAuthGuard)
-    @Post('/confirmar/:eventoId')
+    @Post('/:eventoId/confirmar')
     async postConfirmarPresenca(
         @Req() request,
         @Param() { eventoId, codigo }: ParamsPostPresencaDTO,
