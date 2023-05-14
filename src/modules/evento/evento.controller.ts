@@ -10,6 +10,9 @@ import {
     HttpCode,
     HttpStatus,
     UseGuards,
+    Req,
+    UseInterceptors,
+    UploadedFile,
 } from '@nestjs/common';
 import { EventoService } from './evento.service';
 import { ParamsGetEventoDto } from './dto/params-post-eventos';
@@ -19,6 +22,20 @@ import { ApiBody } from '@nestjs/swagger';
 import { DefaultResponseDTO } from 'src/shared/dto/default-response.dto';
 import { UpdateEventoDTO } from './dto/update-evento-dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import * as path from 'path';
+import * as fs from 'fs-extra';
+import { extname } from 'path';
+
+const uploadsDestination: string = path.resolve(
+    __dirname,
+    '..',
+    '..',
+    '..',
+    'public',
+    'images',
+);
 
 @Controller('/eventos')
 export class EventoController {
@@ -26,9 +43,45 @@ export class EventoController {
 
     @UseGuards(JwtAuthGuard)
     @Post()
-    async postEvent(@Body() createEventDto: CreateEventDto) {
-        const eventCreate = await this.eventService.createEvent(createEventDto);
-        return new DefaultResponseDTO(eventCreate, 'Evento criado com sucesso');
+    @UseInterceptors(
+        FileInterceptor('image', {
+            storage: diskStorage({
+                destination: uploadsDestination,
+                filename: (req, file, cb) => {
+                    const randomName = Array(32)
+                        .fill(null)
+                        .map(() => Math.round(Math.random() * 16).toString(16))
+                        .join('');
+                    return cb(
+                        null,
+                        `${randomName}${extname(file.originalname.trim())}`,
+                    );
+                },
+            }),
+        }),
+    )
+    async postEvent(
+        @Req() req,
+        @Body() createEventDto: CreateEventDto,
+        @UploadedFile() file: Express.Multer.File,
+    ) {
+        try {
+            const usuarioId: string = req.user.id;
+            const eventCreate = await this.eventService.createEvent(
+                createEventDto,
+                usuarioId,
+                file.filename,
+            );
+            return new DefaultResponseDTO(
+                eventCreate,
+                'Evento criado com sucesso',
+            );
+        } catch (error) {
+            if (file) {
+                await fs.remove(file.path);
+            }
+            throw error;
+        }
     }
 
     //Listagem de eventos

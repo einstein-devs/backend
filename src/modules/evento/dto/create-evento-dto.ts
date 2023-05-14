@@ -11,15 +11,12 @@ import {
 export class CreateEventDto {
     @IsString()
     @IsNotEmpty()
-    codigo: string;
+    @IsOptional()
+    codigo?: string;
 
     @IsString()
     @IsNotEmpty()
     localId: string;
-
-    @IsString()
-    @IsNotEmpty()
-    usuarioId: string;
 
     @IsString()
     @IsNotEmpty()
