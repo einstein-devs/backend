@@ -9,6 +9,7 @@ import { CargoGuard } from './guards/cargo.guard';
 import { UsuarioService } from './modules/usuario/usuario.service';
 import { PrismaService } from './modules/prisma/prisma.service';
 import { CertificadoModule } from './modules/certificado/certificado.module';
+import { AppController } from './app.controller';
 
 @Global()
 @Module({
@@ -22,7 +23,7 @@ import { CertificadoModule } from './modules/certificado/certificado.module';
             isGlobal: true,
         }),
     ],
-    controllers: [],
+    controllers: [AppController],
     providers: [PrismaService, UsuarioService],
     exports: [PrismaService, UsuarioService],
 })
