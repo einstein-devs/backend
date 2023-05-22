@@ -11,9 +11,9 @@ CREATE TABLE "usuario" (
     "id_cargo" UUID NOT NULL,
     "id_curso" UUID,
     "id_curso_coordenado" UUID,
-    "data_criacao" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "data_atualizacao" TIMESTAMP(3) NOT NULL,
-    "data_exclusao" TIMESTAMP(3),
+    "data_criacao" TIMESTAMPTZ(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "data_atualizacao" TIMESTAMPTZ(3) NOT NULL,
+    "data_exclusao" TIMESTAMPTZ(3),
 
     CONSTRAINT "usuario_pkey" PRIMARY KEY ("id")
 );
@@ -25,8 +25,8 @@ CREATE TABLE "curso" (
     "ementa" VARCHAR(100),
     "id_centro" UUID NOT NULL,
     "id_coordenador" UUID NOT NULL,
-    "data_criacao" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "data_atualizacao" TIMESTAMP(3) NOT NULL,
+    "data_criacao" TIMESTAMPTZ(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "data_atualizacao" TIMESTAMPTZ(3) NOT NULL,
 
     CONSTRAINT "curso_pkey" PRIMARY KEY ("id")
 );
@@ -36,8 +36,8 @@ CREATE TABLE "centro" (
     "id" UUID NOT NULL,
     "nome" VARCHAR(50) NOT NULL,
     "id_diretor" UUID NOT NULL,
-    "data_criacao" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "data_atualizacao" TIMESTAMP(3) NOT NULL,
+    "data_criacao" TIMESTAMPTZ(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "data_atualizacao" TIMESTAMPTZ(3) NOT NULL,
 
     CONSTRAINT "centro_pkey" PRIMARY KEY ("id")
 );
@@ -46,7 +46,7 @@ CREATE TABLE "centro" (
 CREATE TABLE "cargo" (
     "id" UUID NOT NULL,
     "posicao" "CargoPosicao" NOT NULL,
-    "data_criacao" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "data_criacao" TIMESTAMPTZ(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "cargo_pkey" PRIMARY KEY ("id")
 );
@@ -58,12 +58,12 @@ CREATE TABLE "evento" (
     "descricao" VARCHAR(255),
     "codigo" VARCHAR(12),
     "url_imagem" TEXT,
-    "data_hora_inicio" TIMESTAMP(3) NOT NULL,
-    "data_hora_termino" TIMESTAMP(3) NOT NULL,
+    "data_hora_inicio" TIMESTAMPTZ(3) NOT NULL,
+    "data_hora_termino" TIMESTAMPTZ(3) NOT NULL,
     "id_local" UUID NOT NULL,
     "id_usuario" UUID NOT NULL,
-    "data_criacao" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "data_atualizacao" TIMESTAMP(3) NOT NULL,
+    "data_criacao" TIMESTAMPTZ(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "data_atualizacao" TIMESTAMPTZ(3) NOT NULL,
 
     CONSTRAINT "evento_pkey" PRIMARY KEY ("id")
 );
@@ -73,8 +73,8 @@ CREATE TABLE "local" (
     "id" UUID NOT NULL,
     "titulo" VARCHAR(50) NOT NULL,
     "descricao" VARCHAR(255),
-    "data_criacao" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "data_atualizacao" TIMESTAMP(3) NOT NULL,
+    "data_criacao" TIMESTAMPTZ(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "data_atualizacao" TIMESTAMPTZ(3) NOT NULL,
 
     CONSTRAINT "local_pkey" PRIMARY KEY ("id")
 );
@@ -84,7 +84,7 @@ CREATE TABLE "certificado" (
     "id" UUID NOT NULL,
     "id_usuario" UUID NOT NULL,
     "id_evento" UUID NOT NULL,
-    "data_emissao" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "data_emissao" TIMESTAMPTZ(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "certificado_pkey" PRIMARY KEY ("id")
 );
@@ -94,8 +94,8 @@ CREATE TABLE "presenca" (
     "id" UUID NOT NULL,
     "id_usuario" UUID NOT NULL,
     "id_evento" UUID NOT NULL,
-    "data_inscricao" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "data_presenca" TIMESTAMP(3),
+    "data_inscricao" TIMESTAMPTZ(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "data_presenca" TIMESTAMPTZ(3),
 
     CONSTRAINT "presenca_pkey" PRIMARY KEY ("id")
 );

@@ -1,32 +1,29 @@
 import {
-    Controller,
-    Post,
-    Get,
-    Put,
-    Patch,
-    Delete,
     Body,
-    Param,
+    Controller,
+    Delete,
+    Get,
     HttpCode,
     HttpStatus,
-    UseGuards,
+    Param,
+    Post,
+    Put,
+    Query,
     Req,
-    UseInterceptors,
     UploadedFile,
+    UseGuards,
+    UseInterceptors,
 } from '@nestjs/common';
-import { EventoService } from './evento.service';
-import { ParamsGetEventoDto } from './dto/params-post-eventos';
-import { CreateEventDto } from './dto/create-evento-dto';
-import { stringify } from 'querystring';
-import { ApiBody } from '@nestjs/swagger';
-import { DefaultResponseDTO } from 'src/shared/dto/default-response.dto';
-import { UpdateEventoDTO } from './dto/update-evento-dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
+import * as fs from 'fs-extra';
 import { diskStorage } from 'multer';
 import * as path from 'path';
-import * as fs from 'fs-extra';
 import { extname } from 'path';
+import { DefaultResponseDTO } from 'src/shared/dto/default-response.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { CreateEventDto } from './dto/create-evento-dto';
+import { UpdateEventoDTO } from './dto/update-evento-dto';
+import { EventoService } from './evento.service';
 
 const uploadsDestination: string = path.resolve(
     __dirname,
@@ -70,7 +67,7 @@ export class EventoController {
             const eventCreate = await this.eventService.createEvent(
                 createEventDto,
                 usuarioId,
-                file.filename,
+                file?.filename,
             );
             return new DefaultResponseDTO(
                 eventCreate,
@@ -104,8 +101,11 @@ export class EventoController {
     //Listagem de evento unico
     @Get('/:id')
     @HttpCode(HttpStatus.OK)
-    async findUnique(@Param('id') id: string) {
-        const events = await this.eventService.findUnique(id);
+    async findUnique(
+        @Param('id') id: string,
+        @Query('usuarioId') usuarioId?: string,
+    ) {
+        const events = await this.eventService.findUnique(id, usuarioId);
         return new DefaultResponseDTO(events, 'Evento retornado com sucesso');
     }
 

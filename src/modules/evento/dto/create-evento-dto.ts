@@ -1,11 +1,10 @@
 import { Type } from 'class-transformer';
 import {
-    IsInt,
+    IsDate,
     IsNotEmpty,
     IsOptional,
     IsString,
-    IsNumber,
-    IsDate,
+    IsUUID,
 } from 'class-validator';
 
 export class CreateEventDto {
@@ -16,6 +15,7 @@ export class CreateEventDto {
 
     @IsString()
     @IsNotEmpty()
+    @IsUUID()
     localId: string;
 
     @IsString()

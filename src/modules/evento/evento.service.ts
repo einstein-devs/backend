@@ -1,11 +1,10 @@
 import {
-    Injectable,
     BadRequestException,
+    Injectable,
     NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateEventDto } from './dto/create-evento-dto';
-import { UpdateEventoDTO } from './dto/update-evento-dto';
 
 @Injectable()
 export class EventoService {
@@ -27,7 +26,10 @@ export class EventoService {
             throw new NotFoundException('O local não foi encontrado!');
         }
 
-        if (data.dataHoraInicio.valueOf() > data.dataHoraTermino.valueOf()) {
+        if (
+            new Date(data.dataHoraInicio).valueOf() >
+            new Date(data.dataHoraTermino).valueOf()
+        ) {
             throw new BadRequestException(
                 'A data hora inicio deve ser menor do que a data hora de termino!',
             );
@@ -38,14 +40,16 @@ export class EventoService {
                 localId: data.localId,
                 AND: {
                     dataHoraInicio: {
-                        lte: data.dataHoraInicio,
+                        lte: new Date(data.dataHoraInicio),
                     },
                     dataHoraTermino: {
-                        gt: data.dataHoraInicio,
+                        gt: new Date(data.dataHoraInicio),
                     },
                 },
             },
         });
+
+        console.log(eventoExiste);
 
         if (eventoExiste) {
             throw new BadRequestException(
@@ -54,14 +58,12 @@ export class EventoService {
         }
 
         try {
-            console.log(data);
-            console.log(usuarioId);
             const eventCreate = await this.prismaService.evento.create({
                 data: {
                     titulo: data.titulo,
                     descricao: data.descricao,
-                    dataHoraInicio: data.dataHoraInicio,
-                    dataHoraTermino: data.dataHoraTermino,
+                    dataHoraInicio: new Date(data.dataHoraInicio),
+                    dataHoraTermino: new Date(data.dataHoraTermino),
                     localId: data.localId,
                     usuarioId: usuarioId,
                     urlImagem: imagePath,
@@ -95,26 +97,46 @@ export class EventoService {
     }
 
     //Listagem de evento único
-    async findUnique(id: string) {
+    async findUnique(id: string, usuarioId?: string) {
         try {
-            const evento = await this.prismaService.evento.findUnique({
+            const evento = await this.prismaService.evento.findFirstOrThrow({
                 include: {
                     local: true,
+                    presenca: {
+                        select: {
+                            id: true,
+                        },
+                    },
                 },
                 where: {
                     id: id,
                 },
             });
 
-            const presencas = await this.prismaService.presenca.count({
-                where: {
-                    eventoId: id,
-                },
-            });
+            let estaInscrito: boolean = false;
+
+            console.log(usuarioId);
+            console.log(id);
+            if (usuarioId) {
+                const presencaExiste =
+                    await this.prismaService.presenca.findFirst({
+                        where: {
+                            usuarioId,
+                            eventoId: id,
+                        },
+                    });
+                console.log(usuarioId);
+                console.log(id);
+
+                console.log(presencaExiste);
+
+                estaInscrito = !!presencaExiste;
+            }
 
             return {
                 ...evento,
-                inscritos: presencas,
+                inscritos: evento.presenca.length,
+                estaInscrito: estaInscrito,
             };
         } catch (e) {
             console.log(e);
