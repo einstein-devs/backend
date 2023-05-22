@@ -1,6 +1,7 @@
 import { Controller, Param, Post, Req, UseGuards } from '@nestjs/common';
 import { DefaultResponseDTO } from 'src/shared/dto/default-response.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { ParamsPostPresencaConfirmarDTO } from './dto/params-post-presenca-confirmar.dto';
 import { ParamsPostPresencaDTO } from './dto/params-post-presenca.dto';
 import { PresencaService } from './presenca.service';
 
@@ -30,7 +31,7 @@ export class PresencaController {
     @Post('/:eventoId/confirmar')
     async postConfirmarPresenca(
         @Req() request,
-        @Param() { eventoId, codigo }: ParamsPostPresencaDTO,
+        @Param() { eventoId, codigo }: ParamsPostPresencaConfirmarDTO,
     ) {
         const usuarioId: string = request.user.id;
         const presencaConfirmada = await this.presencaService.confirmarPresenca(

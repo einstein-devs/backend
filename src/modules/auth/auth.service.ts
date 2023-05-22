@@ -6,29 +6,37 @@ import { UsuarioService } from '../usuario/usuario.service';
 
 @Injectable()
 export class AuthService {
-  constructor(
-    private readonly usuarioService: UsuarioService,
-    private readonly jwtService: JwtService,
-  ) {}
+    constructor(
+        private readonly usuarioService: UsuarioService,
+        private readonly jwtService: JwtService,
+    ) {}
 
-  async validateUser(codigo: string, senha: string): Promise<usuario | null> {
-    try {
-      const usuario = await this.usuarioService.findOne(codigo);
+    async validateUser(codigo: string, senha: string): Promise<usuario | null> {
+        try {
+            const usuario = await this.usuarioService.findOne(codigo);
 
-      const senhaCompativel = compareSync(senha, usuario.senha);
+            const senhaCompativel = compareSync(senha, usuario.senha);
 
-      if (usuario && senhaCompativel) {
-        return usuario;
-      }
+            if (usuario && senhaCompativel) {
+                return usuario;
+            }
 
-      return null;
-    } catch {
-      return null;
+            return null;
+        } catch {
+            return null;
+        }
     }
-  }
 
-  async login(usuario: usuario): Promise<string> {
-    const payload = { codigo: usuario.codigo, sub: usuario.id };
-    return await this.jwtService.signAsync(payload);
-  }
+    async login(usuario: usuario): Promise<string> {
+        const payload = { codigo: usuario.codigo, sub: usuario.id };
+        return await this.jwtService.signAsync(payload);
+    }
+
+    async findMe(id: string) {
+        try {
+            return await this.usuarioService.findOneById(id);
+        } catch {
+            return null;
+        }
+    }
 }

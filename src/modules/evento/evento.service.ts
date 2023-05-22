@@ -1,4 +1,8 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import {
+    Injectable,
+    BadRequestException,
+    NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateEventDto } from './dto/create-evento-dto';
 import { UpdateEventoDTO } from './dto/update-evento-dto';
@@ -8,21 +12,64 @@ export class EventoService {
     constructor(private readonly prismaService: PrismaService) {}
 
     //Criação de eventos
-    async createEvent(data: CreateEventDto) {
+    async createEvent(
+        data: CreateEventDto,
+        usuarioId: string,
+        imagePath?: string,
+    ) {
+        const localExiste = await this.prismaService.local.findUnique({
+            where: {
+                id: data.localId,
+            },
+        });
+
+        if (!localExiste) {
+            throw new NotFoundException('O local não foi encontrado!');
+        }
+
+        if (data.dataHoraInicio.valueOf() > data.dataHoraTermino.valueOf()) {
+            throw new BadRequestException(
+                'A data hora inicio deve ser menor do que a data hora de termino!',
+            );
+        }
+
+        const eventoExiste = await this.prismaService.evento.findFirst({
+            where: {
+                localId: data.localId,
+                AND: {
+                    dataHoraInicio: {
+                        lte: data.dataHoraInicio,
+                    },
+                    dataHoraTermino: {
+                        gt: data.dataHoraInicio,
+                    },
+                },
+            },
+        });
+
+        if (eventoExiste) {
+            throw new BadRequestException(
+                'Ja existe um evento cadastrado neste local no mesmo horario!',
+            );
+        }
+
         try {
+            console.log(data);
+            console.log(usuarioId);
             const eventCreate = await this.prismaService.evento.create({
                 data: {
                     titulo: data.titulo,
-                    codigo: data.codigo,
                     descricao: data.descricao,
                     dataHoraInicio: data.dataHoraInicio,
                     dataHoraTermino: data.dataHoraTermino,
                     localId: data.localId,
-                    usuarioId: data.usuarioId,
+                    usuarioId: usuarioId,
+                    urlImagem: imagePath,
                 },
             });
             return eventCreate;
-        } catch {
+        } catch (error) {
+            console.log(error);
             throw new BadRequestException('Ocorreu um erro ao criar o evento');
         }
     }
@@ -30,8 +77,17 @@ export class EventoService {
     //Listagem de eventos
     async findMany() {
         try {
-            return await this.prismaService.evento.findMany();
-        } catch {
+            return await this.prismaService.evento.findMany({
+                include: {
+                    usuario: {
+                        select: {
+                            nome: true,
+                        },
+                    },
+                },
+            });
+        } catch (e) {
+            console.log(e);
             throw new BadRequestException(
                 'Ocorreu um erro ao listar os eventos',
             );
@@ -41,12 +97,27 @@ export class EventoService {
     //Listagem de evento único
     async findUnique(id: string) {
         try {
-            return await this.prismaService.evento.findUnique({
+            const evento = await this.prismaService.evento.findUnique({
+                include: {
+                    local: true,
+                },
                 where: {
                     id: id,
                 },
             });
-        } catch {
+
+            const presencas = await this.prismaService.presenca.count({
+                where: {
+                    eventoId: id,
+                },
+            });
+
+            return {
+                ...evento,
+                inscritos: presencas,
+            };
+        } catch (e) {
+            console.log(e);
             throw new BadRequestException('Ocorreu um erro ao listar o evento');
         }
     }
@@ -78,6 +149,42 @@ export class EventoService {
         } catch {
             throw new BadRequestException(
                 'Ocorreu um erro ao excluir o evento',
+            );
+        }
+    }
+
+    async findEventosInscritos(usuarioId: string) {
+        try {
+            const eventos = await this.prismaService.evento.findMany({
+                include: {
+                    local: true,
+                    presenca: {
+                        select: {
+                            id: true,
+                        },
+                    },
+                    usuario: true,
+                },
+                where: {
+                    presenca: {
+                        some: {
+                            usuarioId: usuarioId,
+                        },
+                    },
+                },
+            });
+
+            return eventos.map(item => {
+                const inscritos = item.presenca.length;
+
+                delete item.presenca;
+                delete item.usuario.senha;
+
+                return { ...item, inscritos };
+            });
+        } catch {
+            throw new BadRequestException(
+                'Ocorreu um erro ao buscar por eventos inscritos!',
             );
         }
     }
