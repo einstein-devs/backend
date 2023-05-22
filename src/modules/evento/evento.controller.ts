@@ -92,6 +92,15 @@ export class EventoController {
         return new DefaultResponseDTO(events, 'Eventos retornados com sucesso');
     }
 
+    @UseGuards(JwtAuthGuard)
+    @Get('/inscritos')
+    @HttpCode(HttpStatus.OK)
+    async findEventosInscritos(@Req() req) {
+        const usuarioId = req.user.id;
+        const eventos = await this.eventService.findEventosInscritos(usuarioId);
+        return new DefaultResponseDTO(eventos, 'Evento retornado com sucesso');
+    }
+
     //Listagem de evento unico
     @Get('/:id')
     @HttpCode(HttpStatus.OK)

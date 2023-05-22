@@ -97,11 +97,25 @@ export class EventoService {
     //Listagem de evento único
     async findUnique(id: string) {
         try {
-            return await this.prismaService.evento.findUnique({
+            const evento = await this.prismaService.evento.findUnique({
+                include: {
+                    local: true,
+                },
                 where: {
                     id: id,
                 },
             });
+
+            const presencas = await this.prismaService.presenca.count({
+                where: {
+                    eventoId: id,
+                },
+            });
+
+            return {
+                ...evento,
+                inscritos: presencas,
+            };
         } catch (e) {
             console.log(e);
             throw new BadRequestException('Ocorreu um erro ao listar o evento');
@@ -135,6 +149,42 @@ export class EventoService {
         } catch {
             throw new BadRequestException(
                 'Ocorreu um erro ao excluir o evento',
+            );
+        }
+    }
+
+    async findEventosInscritos(usuarioId: string) {
+        try {
+            const eventos = await this.prismaService.evento.findMany({
+                include: {
+                    local: true,
+                    presenca: {
+                        select: {
+                            id: true,
+                        },
+                    },
+                    usuario: true,
+                },
+                where: {
+                    presenca: {
+                        some: {
+                            usuarioId: usuarioId,
+                        },
+                    },
+                },
+            });
+
+            return eventos.map(item => {
+                const inscritos = item.presenca.length;
+
+                delete item.presenca;
+                delete item.usuario.senha;
+
+                return { ...item, inscritos };
+            });
+        } catch {
+            throw new BadRequestException(
+                'Ocorreu um erro ao buscar por eventos inscritos!',
             );
         }
     }

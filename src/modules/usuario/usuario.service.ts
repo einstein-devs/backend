@@ -75,6 +75,21 @@ export class UsuarioService {
         }
     }
 
+    async findOneById(id: string) {
+        try {
+            return await this.prismaService.usuario.findFirstOrThrow({
+                include: {
+                    curso: true,
+                },
+                where: {
+                    id: id,
+                },
+            });
+        } catch {
+            return null;
+        }
+    }
+
     async updateUser(
         codigoUsuario: string,
         {
