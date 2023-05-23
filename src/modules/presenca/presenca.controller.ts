@@ -16,6 +16,7 @@ export class PresencaController {
         @Param() { eventoId }: ParamsPostPresencaDTO,
     ) {
         const usuarioId: string = request.user.id;
+        console.log('INSCREVENTOOO ' + usuarioId);
         const inscricaoCriada = await this.presencaService.createPresenca(
             eventoId,
             usuarioId,

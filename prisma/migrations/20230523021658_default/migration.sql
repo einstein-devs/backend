@@ -112,12 +112,6 @@ CREATE UNIQUE INDEX "centro_nome_key" ON "centro"("nome");
 -- CreateIndex
 CREATE UNIQUE INDEX "cargo_posicao_key" ON "cargo"("posicao");
 
--- CreateIndex
-CREATE UNIQUE INDEX "presenca_id_usuario_key" ON "presenca"("id_usuario");
-
--- CreateIndex
-CREATE UNIQUE INDEX "presenca_id_evento_key" ON "presenca"("id_evento");
-
 -- AddForeignKey
 ALTER TABLE "usuario" ADD CONSTRAINT "usuario_id_cargo_fkey" FOREIGN KEY ("id_cargo") REFERENCES "cargo"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 

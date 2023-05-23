@@ -90,14 +90,12 @@ export class CertificadoService {
             throw new BadRequestException('Código de evento inválido!');
         }
 
-        const presencaEncontrada = await this.prismaService.presenca.findUnique(
-            {
-                where: {
-                    usuarioId: usuarioId,
-                    eventoId: createCertificadoDto.eventoId,
-                },
+        const presencaEncontrada = await this.prismaService.presenca.findFirst({
+            where: {
+                usuarioId: usuarioId,
+                eventoId: createCertificadoDto.eventoId,
             },
-        );
+        });
 
         if (!presencaEncontrada) {
             throw new NotFoundException(
