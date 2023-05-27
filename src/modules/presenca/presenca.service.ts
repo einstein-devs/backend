@@ -35,28 +35,37 @@ export class PresencaService {
         if (!presencaExiste) {
             throw new NotFoundException('Presença em evento não encontrada!');
         }
-        if (presencaExiste.dataInscricao) {
+        if (presencaExiste.dataPresenca) {
             throw new UnauthorizedException(
                 'Presença em evento já foi confirmada!',
             );
         }
 
         try {
-            const presencaCriada = await this.prismaService.presenca.update({
-                where: {
-                    id: presencaExiste.id,
-                },
-                select: {
-                    id: true,
-                    usuarioId: true,
-                    dataInscricao: true,
-                    dataPresenca: true,
-                    evento: true,
-                },
-                data: {
-                    dataPresenca: new Date(),
-                },
-            });
+            const [presencaCriada, certificado] =
+                await this.prismaService.$transaction([
+                    this.prismaService.presenca.update({
+                        where: {
+                            id: presencaExiste.id,
+                        },
+                        select: {
+                            id: true,
+                            usuarioId: true,
+                            dataInscricao: true,
+                            dataPresenca: true,
+                            evento: true,
+                        },
+                        data: {
+                            dataPresenca: new Date(),
+                        },
+                    }),
+                    this.prismaService.certificado.create({
+                        data: {
+                            eventoId: eventoId,
+                            usuarioId: usuarioId,
+                        },
+                    }),
+                ]);
 
             return presencaCriada;
         } catch {

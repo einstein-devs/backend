@@ -114,9 +114,9 @@ export class EventoService {
             });
 
             let estaInscrito: boolean = false;
+            let estaConfimado: boolean = false;
+            let certificadoGerado: boolean = false;
 
-            console.log(usuarioId);
-            console.log(id);
             if (usuarioId) {
                 const presencaExiste =
                     await this.prismaService.presenca.findFirst({
@@ -125,18 +125,28 @@ export class EventoService {
                             eventoId: id,
                         },
                     });
-                console.log(usuarioId);
-                console.log(id);
 
-                console.log(presencaExiste);
+                const certificadoExiste =
+                    await this.prismaService.certificado.findFirst({
+                        where: {
+                            eventoId: id,
+                            usuarioId,
+                        },
+                    });
 
                 estaInscrito = !!presencaExiste;
+                estaConfimado = !!presencaExiste
+                    ? !!presencaExiste.dataPresenca
+                    : false;
+                certificadoGerado = !!certificadoExiste;
             }
 
             return {
                 ...evento,
                 inscritos: evento.presenca.length,
-                estaInscrito: estaInscrito,
+                estaInscrito,
+                estaConfimado,
+                certificadoGerado,
             };
         } catch (e) {
             console.log(e);

@@ -4,8 +4,8 @@ import {
     Get,
     HttpCode,
     HttpStatus,
+    Param,
     Post,
-    Query,
     Req,
     UseGuards,
 } from '@nestjs/common';
@@ -38,6 +38,16 @@ export class CertificadoController {
         const usuarioId: string = req.user.id;
         const certificados = await this.certificadoService.getMeusCertificados(
             usuarioId,
+        );
+        return new DefaultResponseDTO(certificados);
+    }
+
+    @Get('/:id')
+    async getCertificado(@Req() req, @Param('id') id: string) {
+        const usuarioId: string = req.user.id;
+        const certificados = await this.certificadoService.getCertificado(
+            usuarioId,
+            id,
         );
         return new DefaultResponseDTO(certificados);
     }

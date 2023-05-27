@@ -45,15 +45,78 @@ export class CertificadoService {
     async getMeusCertificados(usuarioId: string) {
         try {
             const certificados = await this.prismaService.certificado.findMany({
+                include: {
+                    evento: {
+                        select: {
+                            titulo: true,
+                            usuario: {
+                                select: {
+                                    nome: true,
+                                },
+                            },
+                            dataHoraInicio: true,
+                            dataHoraTermino: true,
+                        },
+                    },
+                },
                 where: {
                     usuarioId: usuarioId,
                 },
             });
 
-            return certificados;
+            return certificados.map(certificado => {
+                return {
+                    id: certificado.id,
+                    evento: { ...certificado.evento },
+                    dataEmissao: certificado.dataEmissao,
+                    usuario: {
+                        nome: certificado.evento.usuario.nome,
+                    },
+                };
+            });
         } catch {
             throw new BadRequestException(
                 'Ocorreu um erro ao buscar certificados!',
+            );
+        }
+    }
+
+    async getCertificado(usuarioId: string, certificadoId: string) {
+        try {
+            const certificado = await this.prismaService.certificado.findFirst({
+                include: {
+                    evento: {
+                        select: {
+                            titulo: true,
+                            usuario: {
+                                select: {
+                                    nome: true,
+                                },
+                            },
+                            dataHoraInicio: true,
+                            dataHoraTermino: true,
+                        },
+                    },
+                },
+                where: {
+                    usuarioId: usuarioId,
+                    id: certificadoId,
+                },
+            });
+
+            return {
+                id: certificado.id,
+                evento: {
+                    ...certificado.evento,
+                },
+                dataEmissao: certificado.dataEmissao,
+                usuario: {
+                    nome: certificado.evento.usuario.nome,
+                },
+            };
+        } catch {
+            throw new BadRequestException(
+                'Ocorreu um erro ao buscar certificado!',
             );
         }
     }
