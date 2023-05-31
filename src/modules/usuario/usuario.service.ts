@@ -1,19 +1,15 @@
 import {
-    INestApplication,
-    Injectable,
-    NotFoundException,
     BadRequestException,
+    Injectable,
     InternalServerErrorException,
+    NotFoundException,
     UnauthorizedException,
-    ConsoleLogger,
 } from '@nestjs/common';
-import { CargoPosicao, Prisma, usuario } from '@prisma/client';
-import { UsuarioDto } from './dto/usuario.dto';
+import { CargoPosicao, usuario } from '@prisma/client';
+import { compare, hash } from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
-import { compare, compareSync, hash } from 'bcrypt';
-import { error } from 'console';
-import { errorMonitor } from 'events';
+import { UsuarioDto } from './dto/usuario.dto';
 
 @Injectable()
 export class UsuarioService {
@@ -66,6 +62,14 @@ export class UsuarioService {
     async findOne(codigoDigitado: string) {
         try {
             return await this.prismaService.usuario.findFirstOrThrow({
+                include: {
+                    cargo: {
+                        select: {
+                            id: true,
+                            posicao: true,
+                        },
+                    },
+                },
                 where: {
                     codigo: codigoDigitado,
                 },
@@ -80,6 +84,12 @@ export class UsuarioService {
             return await this.prismaService.usuario.findFirstOrThrow({
                 include: {
                     curso: true,
+                    cargo: {
+                        select: {
+                            id: true,
+                            posicao: true,
+                        },
+                    },
                 },
                 where: {
                     id: id,
