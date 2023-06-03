@@ -1,7 +1,6 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { LocalDto } from './dto/local.dto';
 import { PrismaService } from '../prisma/prisma.service';
-import { LocalModule } from './local.module';
+import { LocalDto } from './dto/local.dto';
 import { UpdateLocalDto } from './dto/update-local.dto';
 
 @Injectable()
@@ -34,13 +33,15 @@ export class LocalService {
 
     async create(localData: LocalDto) {
         try {
+            console.log(localData);
             return await this.prisma.local.create({
                 data: {
                     titulo: localData.titulo,
                     descricao: localData.descricao,
                 },
             });
-        } catch {
+        } catch (_) {
+            console.log('' + _);
             throw new InternalServerErrorException(
                 'Ocorreu um erro ao criar um novo local!',
             );

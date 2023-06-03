@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateEventDto } from './dto/create-evento-dto';
+import { FindManyEventosDto } from './dto/find-many-eventos.dto';
 
 @Injectable()
 export class EventoService {
@@ -77,7 +78,7 @@ export class EventoService {
     }
 
     //Listagem de eventos
-    async findMany() {
+    async findMany(filtros: FindManyEventosDto) {
         try {
             return await this.prismaService.evento.findMany({
                 include: {
@@ -85,6 +86,12 @@ export class EventoService {
                         select: {
                             nome: true,
                         },
+                    },
+                },
+                where: {
+                    titulo: {
+                        contains: filtros.search,
+                        mode: 'insensitive',
                     },
                 },
             });

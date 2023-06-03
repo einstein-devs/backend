@@ -28,10 +28,10 @@ export class UsuarioService {
                     id: filtros.idUsuario,
                 },
             });
-            console.log(usuario.cargo);
 
             return filtros.cargos.includes(usuario.cargo.posicao);
-        } catch {
+        } catch (_) {
+            console.log(_);
             throw new UnauthorizedException(
                 'Ocorreu um erro ao validar cargo!',
             );

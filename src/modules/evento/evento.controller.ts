@@ -22,6 +22,7 @@ import { extname } from 'path';
 import { DefaultResponseDTO } from 'src/shared/dto/default-response.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CreateEventDto } from './dto/create-evento-dto';
+import { FindManyEventosDto } from './dto/find-many-eventos.dto';
 import { UpdateEventoDTO } from './dto/update-evento-dto';
 import { EventoService } from './evento.service';
 
@@ -62,6 +63,7 @@ export class EventoController {
         @Body() createEventDto: CreateEventDto,
         @UploadedFile() file: Express.Multer.File,
     ) {
+        console.log(createEventDto);
         try {
             const usuarioId: string = req.user.id;
             const eventCreate = await this.eventService.createEvent(
@@ -84,8 +86,8 @@ export class EventoController {
     //Listagem de eventos
     @Get()
     @HttpCode(HttpStatus.OK)
-    async findMany() {
-        const events = await this.eventService.findMany();
+    async findMany(@Query() filtros: FindManyEventosDto) {
+        const events = await this.eventService.findMany(filtros);
         return new DefaultResponseDTO(events, 'Eventos retornados com sucesso');
     }
 

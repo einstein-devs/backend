@@ -8,14 +8,14 @@ import {
     Put,
     UseGuards,
 } from '@nestjs/common';
-import { LocalService } from './local.service';
-import { LocalDto } from './dto/local.dto';
-import { UpdateLocalDto } from './dto/update-local.dto';
+import { CargoPosicao } from '@prisma/client';
+import { SomenteCargos } from 'src/guards/cargo.decorator';
+import { CargoGuard } from 'src/guards/cargo.guard';
 import { DefaultResponseDTO } from 'src/shared/dto/default-response.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { CargoGuard } from 'src/guards/cargo.guard';
-import { SomenteCargos } from 'src/guards/cargo.decorator';
-import { CargoPosicao } from '@prisma/client';
+import { LocalDto } from './dto/local.dto';
+import { UpdateLocalDto } from './dto/update-local.dto';
+import { LocalService } from './local.service';
 
 @UseGuards(JwtAuthGuard, CargoGuard)
 @Controller('/locais')
@@ -52,6 +52,7 @@ export class LocalController {
     @SomenteCargos(CargoPosicao.DIRETOR, CargoPosicao.COORDENADOR)
     @Post()
     async create(@Body() localData: LocalDto) {
+        console.log(localData);
         const localCriado = await this.localService.create(localData);
         return new DefaultResponseDTO(localCriado, 'Local criado com sucesso!');
     }
