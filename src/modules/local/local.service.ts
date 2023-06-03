@@ -1,5 +1,6 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { FindManyLocaisDto } from './dto/find-many-locais.dto';
 import { LocalDto } from './dto/local.dto';
 import { UpdateLocalDto } from './dto/update-local.dto';
 
@@ -7,9 +8,16 @@ import { UpdateLocalDto } from './dto/update-local.dto';
 export class LocalService {
     constructor(private prisma: PrismaService) {}
 
-    async findMany() {
+    async findMany(filtros: FindManyLocaisDto) {
         try {
-            return await this.prisma.local.findMany();
+            return await this.prisma.local.findMany({
+                where: {
+                    titulo: {
+                        contains: filtros.search,
+                        mode: 'insensitive',
+                    },
+                },
+            });
         } catch {
             throw new InternalServerErrorException(
                 'Ocorreu um erro ao buscar os locais!',

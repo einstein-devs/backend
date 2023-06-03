@@ -59,6 +59,30 @@ export class UsuarioService {
         }
     }
 
+    async findAllAlunos() {
+        try {
+            return await this.prismaService.usuario.findMany({
+                include: {
+                    curso: true,
+                    cargo: true,
+                },
+                where: {
+                    cargo: {
+                        isNot: {
+                            posicao: {
+                                in: ['COORDENADOR', 'DIRETOR'],
+                            },
+                        },
+                    },
+                },
+            });
+        } catch {
+            throw new InternalServerErrorException(
+                'Ocorreu um erro ao buscar todos os usuários!',
+            );
+        }
+    }
+
     async findOne(codigoDigitado: string) {
         try {
             return await this.prismaService.usuario.findFirstOrThrow({

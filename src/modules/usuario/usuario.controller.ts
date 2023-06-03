@@ -1,39 +1,34 @@
 import {
     Body,
     Controller,
+    Delete,
     Get,
-    Post,
-    Put,
-    Req,
-    Request,
-    Res,
     HttpCode,
     HttpStatus,
-    Param,
-    Delete,
-    UseGuards,
     NotFoundException,
+    Param,
+    Post,
+    Put,
 } from '@nestjs/common';
-import {
-    ApiBody,
-    ApiOkResponse,
-    ApiTags,
-    ApiUnauthorizedResponse,
-    ApiUnsupportedMediaTypeResponse,
-    getSchemaPath,
-} from '@nestjs/swagger';
+import { ApiBody, ApiTags } from '@nestjs/swagger';
 
 import { UsuarioService } from './usuario.service';
 
-import { usuario } from '@prisma/client';
 import { DefaultResponseDTO } from 'src/shared/dto/default-response.dto';
-import { UsuarioDto } from './dto/usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
+import { UsuarioDto } from './dto/usuario.dto';
 
 @ApiTags('UsuarioController')
 @Controller('/usuarios')
 export class UsuarioController {
     constructor(private readonly usuarioService: UsuarioService) {}
+
+    @Get('/alunos')
+    @HttpCode(HttpStatus.OK)
+    async findAllAlunos() {
+        const alunos = await this.usuarioService.findAllAlunos();
+        return new DefaultResponseDTO(alunos);
+    }
 
     @Get()
     @HttpCode(HttpStatus.OK)

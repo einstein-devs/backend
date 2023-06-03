@@ -1,15 +1,14 @@
 import { Global, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { AuthModule } from './modules/auth/auth.module';
-import { PresencaModule } from './modules/presenca/presenca.module';
-import { LocalModule } from './modules/local/local.module';
-import { EventoModule } from './modules/evento/evento.module';
-import { APP_GUARD } from '@nestjs/core';
-import { CargoGuard } from './guards/cargo.guard';
-import { UsuarioService } from './modules/usuario/usuario.service';
-import { PrismaService } from './modules/prisma/prisma.service';
-import { CertificadoModule } from './modules/certificado/certificado.module';
 import { AppController } from './app.controller';
+import { AuthModule } from './modules/auth/auth.module';
+import { CertificadoModule } from './modules/certificado/certificado.module';
+import { CursoModule } from './modules/curso/curso.module';
+import { EventoModule } from './modules/evento/evento.module';
+import { LocalModule } from './modules/local/local.module';
+import { PresencaModule } from './modules/presenca/presenca.module';
+import { PrismaService } from './modules/prisma/prisma.service';
+import { UsuarioService } from './modules/usuario/usuario.service';
 
 @Global()
 @Module({
@@ -18,6 +17,7 @@ import { AppController } from './app.controller';
         CertificadoModule,
         AuthModule,
         PresencaModule,
+        CursoModule,
         EventoModule,
         ConfigModule.forRoot({
             isGlobal: true,

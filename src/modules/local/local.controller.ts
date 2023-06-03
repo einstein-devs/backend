@@ -6,6 +6,7 @@ import {
     Param,
     Post,
     Put,
+    Query,
     UseGuards,
 } from '@nestjs/common';
 import { CargoPosicao } from '@prisma/client';
@@ -13,6 +14,7 @@ import { SomenteCargos } from 'src/guards/cargo.decorator';
 import { CargoGuard } from 'src/guards/cargo.guard';
 import { DefaultResponseDTO } from 'src/shared/dto/default-response.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { FindManyLocaisDto } from './dto/find-many-locais.dto';
 import { LocalDto } from './dto/local.dto';
 import { UpdateLocalDto } from './dto/update-local.dto';
 import { LocalService } from './local.service';
@@ -52,15 +54,14 @@ export class LocalController {
     @SomenteCargos(CargoPosicao.DIRETOR, CargoPosicao.COORDENADOR)
     @Post()
     async create(@Body() localData: LocalDto) {
-        console.log(localData);
         const localCriado = await this.localService.create(localData);
         return new DefaultResponseDTO(localCriado, 'Local criado com sucesso!');
     }
 
     @SomenteCargos(CargoPosicao.DIRETOR, CargoPosicao.COORDENADOR)
     @Get()
-    async findMany() {
-        const locais = await this.localService.findMany();
+    async findMany(@Query() filtros: FindManyLocaisDto) {
+        const locais = await this.localService.findMany(filtros);
         return new DefaultResponseDTO(
             locais,
             'Locais encontrados com sucesso!',
