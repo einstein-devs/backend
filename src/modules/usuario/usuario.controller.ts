@@ -9,12 +9,16 @@ import {
     Param,
     Post,
     Put,
+    Query,
 } from '@nestjs/common';
-import { ApiBody, ApiTags } from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger';
 
 import { UsuarioService } from './usuario.service';
 
+import { CargoPosicao } from '@prisma/client';
+import { SomenteCargos } from 'src/guards/cargo.decorator';
 import { DefaultResponseDTO } from 'src/shared/dto/default-response.dto';
+import { FindManyAlunosDto } from './dto/find-many-alunos.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 import { UsuarioDto } from './dto/usuario.dto';
 
@@ -25,8 +29,8 @@ export class UsuarioController {
 
     @Get('/alunos')
     @HttpCode(HttpStatus.OK)
-    async findAllAlunos() {
-        const alunos = await this.usuarioService.findAllAlunos();
+    async findAllAlunos(@Query() filtros: FindManyAlunosDto) {
+        const alunos = await this.usuarioService.findAllAlunos(filtros);
         return new DefaultResponseDTO(alunos);
     }
 
@@ -38,14 +42,6 @@ export class UsuarioController {
     }
 
     @Get('/:codigo')
-    @ApiBody({
-        required: true,
-        schema: {
-            default: {
-                codigo: 'codigo',
-            },
-        },
-    })
     @HttpCode(HttpStatus.OK)
     async findByUser(@Param('codigo') codigo: string) {
         const usuario = await this.usuarioService.findOne(codigo);
@@ -59,19 +55,8 @@ export class UsuarioController {
         return new DefaultResponseDTO(usuario);
     }
 
+    @SomenteCargos(CargoPosicao.COORDENADOR, CargoPosicao.DIRETOR)
     @Post('/create')
-    @ApiBody({
-        required: true,
-        schema: {
-            default: {
-                codigo: 'codigo',
-                cursoId: 'cursoId',
-                email: 'email',
-                senha: 'senha',
-                confirmarSenha: 'confirmarSenha',
-            },
-        },
-    })
     @HttpCode(HttpStatus.CREATED)
     async createUser(@Body() createUsuarioDto: UsuarioDto) {
         const usuarioCriado = await this.usuarioService.createUser(
@@ -81,18 +66,6 @@ export class UsuarioController {
     }
 
     @Put('/:codigo/update')
-    @ApiBody({
-        required: true,
-        schema: {
-            default: {
-                nome: 'nome',
-                email: 'email',
-                senha: 'senha',
-                novaSenha: 'novaSenha',
-                confirmacaoNovaSenha: 'confirmacaoNovaSenha',
-            },
-        },
-    })
     @HttpCode(HttpStatus.NO_CONTENT)
     async updateUser(
         @Param('codigo') codigoUsuario: string,
@@ -103,12 +76,6 @@ export class UsuarioController {
     }
 
     @Delete('/:codigo/delete')
-    @ApiBody({
-        required: true,
-        schema: {
-            default: {},
-        },
-    })
     @HttpCode(HttpStatus.ACCEPTED)
     async deleteUser(@Param('codigo') codigo: string) {
         await this.usuarioService.deleteUser(codigo);

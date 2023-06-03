@@ -8,6 +8,7 @@ import {
 import { CargoPosicao, usuario } from '@prisma/client';
 import { compare, hash } from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
+import { FindManyAlunosDto } from './dto/find-many-alunos.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 import { UsuarioDto } from './dto/usuario.dto';
 
@@ -59,22 +60,41 @@ export class UsuarioService {
         }
     }
 
-    async findAllAlunos() {
+    async findAllAlunos(filtros: FindManyAlunosDto) {
         try {
+            let whereOr: any = {
+                cargo: {
+                    isNot: {
+                        posicao: {
+                            in: ['COORDENADOR', 'DIRETOR'],
+                        },
+                    },
+                },
+            };
+
+            if (filtros.search && filtros.search != '') {
+                whereOr['OR'] = [
+                    {
+                        nome: {
+                            contains: filtros.search,
+                            mode: 'insensitive',
+                        },
+                    },
+                    {
+                        email: {
+                            contains: filtros.search,
+                            mode: 'insensitive',
+                        },
+                    },
+                ];
+            }
+
             return await this.prismaService.usuario.findMany({
                 include: {
                     curso: true,
                     cargo: true,
                 },
-                where: {
-                    cargo: {
-                        isNot: {
-                            posicao: {
-                                in: ['COORDENADOR', 'DIRETOR'],
-                            },
-                        },
-                    },
-                },
+                where: { ...whereOr },
             });
         } catch {
             throw new InternalServerErrorException(
@@ -198,13 +218,50 @@ export class UsuarioService {
     }
 
     async createUser(data: UsuarioDto): Promise<usuario> {
+        const curso = await this.prismaService.curso.findUnique({
+            where: {
+                id: data.cursoId,
+            },
+        });
+
+        if (!curso) {
+            throw new NotFoundException('Curso não encontrado!');
+        }
+
+        const usuarioExiste = await this.prismaService.usuario.findFirst({
+            where: {
+                cursoId: data.cursoId,
+                OR: {
+                    nome: {
+                        equals: data.nome,
+                        mode: 'insensitive',
+                    },
+                    email: {
+                        equals: data.email,
+                        mode: 'insensitive',
+                    },
+                },
+            },
+        });
+
+        if (usuarioExiste) {
+            throw new BadRequestException('O usuario ja existe!');
+        }
+
         try {
+            var codigoAleatorio = '';
+            for (var i = 0; i < 5; i++) {
+                codigoAleatorio += Math.floor(Math.random() * 10);
+            }
+
+            codigoAleatorio += curso.id.substring(4, 7);
+
             return await this.prismaService.usuario.create({
                 data: {
-                    codigo: data.codigo,
+                    codigo: codigoAleatorio,
                     nome: data.nome,
                     email: data.email,
-                    senha: data.senha,
+                    senha: codigoAleatorio,
                     cargo: {
                         connect: {
                             posicao: CargoPosicao.ALUNO,
@@ -212,7 +269,7 @@ export class UsuarioService {
                     },
                     curso: {
                         connect: {
-                            id: data.cursoid,
+                            id: data.cursoId,
                         },
                     },
                 },
