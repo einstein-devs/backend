@@ -49,31 +49,13 @@ async function populateDatabase() {
         await prisma.usuario.createMany({
             data: [
                 {
-                    nome: 'Joao Mateus',
-                    email: 'mateus@gmail.com',
-                    codigo: '1',
-                    senha: passwordHashed,
-                    cargoId: idCoordenador,
-                },
-                {
                     nome: 'Eduardo Bertoli',
                     email: 'eduardo@gmail.com',
-                    codigo: '2',
+                    codigo: '1',
                     senha: passwordHashed,
                     cargoId: idDiretor,
                 },
             ],
-        });
-
-        const centro = await prisma.centro.create({
-            data: {
-                nome: 'Informatica',
-                diretor: {
-                    connect: {
-                        codigo: '2',
-                    },
-                },
-            },
         });
     } catch (error) {
         console.log(`Erro ao criar padrao: ${error}`);

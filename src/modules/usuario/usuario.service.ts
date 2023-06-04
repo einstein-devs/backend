@@ -32,7 +32,6 @@ export class UsuarioService {
 
             return filtros.cargos.includes(usuario.cargo.posicao);
         } catch (_) {
-            console.log(_);
             throw new UnauthorizedException(
                 'Ocorreu um erro ao validar cargo!',
             );
@@ -226,8 +225,6 @@ export class UsuarioService {
                     throw new BadRequestException('As senhas não coincidem!');
                 }
             }
-
-            console.log(data);
 
             return await this.prismaService.usuario.update({
                 where: {

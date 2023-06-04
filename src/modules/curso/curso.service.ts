@@ -27,8 +27,6 @@ export class CursoService {
                 },
             };
 
-            console.log(filtros);
-
             if (filtros.somenteSemCoordenadores) {
                 cursos = await this.prisma.curso.findMany({
                     include: {

@@ -95,7 +95,6 @@ export class PresencaService {
         }
 
         try {
-            console.log(usuarioId);
             const presencaCriada = await this.prismaService.presenca.create({
                 select: {
                     id: true,
@@ -112,7 +111,6 @@ export class PresencaService {
 
             return presencaCriada;
         } catch (e) {
-            console.log(e);
             throw new BadRequestException(
                 'Ocorreu um erro ao confirmar inscrição!',
             );

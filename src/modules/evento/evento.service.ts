@@ -27,10 +27,7 @@ export class EventoService {
             throw new NotFoundException('O local não foi encontrado!');
         }
 
-        if (
-            new Date(data.dataHoraInicio).valueOf() >
-            new Date(data.dataHoraTermino).valueOf()
-        ) {
+        if (data.dataHoraInicio.valueOf() > data.dataHoraTermino.valueOf()) {
             throw new BadRequestException(
                 'A data hora inicio deve ser menor do que a data hora de termino!',
             );
@@ -49,8 +46,6 @@ export class EventoService {
                 },
             },
         });
-
-        console.log(eventoExiste);
 
         if (eventoExiste) {
             throw new BadRequestException(
@@ -72,7 +67,6 @@ export class EventoService {
             });
             return eventCreate;
         } catch (error) {
-            console.log(error);
             throw new BadRequestException('Ocorreu um erro ao criar o evento');
         }
     }
@@ -87,9 +81,6 @@ export class EventoService {
                     id: usuarioId,
                 },
             });
-
-            console.log('XIIIIIII');
-            console.log(usuario.cargo.posicao);
 
             if (usuario.cargo.posicao == 'DIRETOR') {
                 return await this.prismaService.evento.findMany({
@@ -126,7 +117,6 @@ export class EventoService {
                 });
             }
         } catch (e) {
-            console.log(e);
             throw new BadRequestException(
                 'Ocorreu um erro ao listar os eventos',
             );
@@ -151,7 +141,6 @@ export class EventoService {
                 },
             });
         } catch (e) {
-            console.log(e);
             throw new BadRequestException(
                 'Ocorreu um erro ao listar os eventos',
             );

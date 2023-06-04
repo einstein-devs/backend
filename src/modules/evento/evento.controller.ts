@@ -66,7 +66,6 @@ export class EventoController {
         @Body() createEventDto: CreateEventDto,
         @UploadedFile() file: Express.Multer.File,
     ) {
-        console.log(createEventDto);
         try {
             const usuarioId: string = req.user.id;
             const eventCreate = await this.eventService.createEvent(

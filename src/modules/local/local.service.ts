@@ -41,7 +41,6 @@ export class LocalService {
 
     async create(localData: LocalDto) {
         try {
-            console.log(localData);
             return await this.prisma.local.create({
                 data: {
                     titulo: localData.titulo,
@@ -49,7 +48,6 @@ export class LocalService {
                 },
             });
         } catch (_) {
-            console.log('' + _);
             throw new InternalServerErrorException(
                 'Ocorreu um erro ao criar um novo local!',
             );

@@ -1,5 +1,6 @@
-import { Type } from 'class-transformer';
-import { IsDate, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { Transform, Type } from 'class-transformer';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { DateTime } from 'luxon';
 
 export class CreateEventDto {
     @IsString()
@@ -20,13 +21,32 @@ export class CreateEventDto {
     @IsNotEmpty()
     descricao?: string;
 
-    @IsDate()
-    @Type(() => Date)
+    @IsString()
+    @Transform(({ value }) => {
+        const dataRecebida = DateTime.fromJSDate(new Date(value), {
+            zone: 'America/Sao_Paulo',
+        });
+        const dataFormatada = dataRecebida.toFormat(
+            "yyyy-MM-dd'T'HH:mm:ss.SSS",
+        );
+
+        return dataFormatada;
+    })
     @IsNotEmpty()
     dataHoraInicio: Date;
 
-    @IsDate()
+    @IsString()
     @Type(() => Date)
+    @Transform(({ value }) => {
+        const dataRecebida = DateTime.fromJSDate(new Date(value), {
+            zone: 'America/Sao_Paulo',
+        });
+        const dataFormatada = dataRecebida.toFormat(
+            "yyyy-MM-dd'T'HH:mm:ss.SSS",
+        );
+
+        return dataFormatada;
+    })
     @IsNotEmpty()
     dataHoraTermino: Date;
 }
