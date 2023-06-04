@@ -210,8 +210,7 @@ export class EventoService {
                 estaConfimado,
                 certificadoGerado,
             };
-        } catch (e) {
-            console.log(e);
+        } catch {
             throw new BadRequestException('Ocorreu um erro ao listar o evento');
         }
     }
@@ -224,6 +223,63 @@ export class EventoService {
                     id,
                 },
                 data: updateEventDto,
+            });
+        } catch {
+            throw new BadRequestException(
+                'Ocorreu um erro ao alterar os eventos',
+            );
+        }
+    }
+
+    async gerarCodigoEvento(id: string) {
+        const eventoExiste = await this.prismaService.evento.findUnique({
+            where: {
+                id,
+            },
+        });
+
+        if (!eventoExiste) {
+            throw new NotFoundException('Não foi possível encontrar o evento!');
+        }
+
+        if (
+            new Date(eventoExiste.dataHoraTermino).valueOf() <
+            new Date().valueOf()
+        ) {
+            throw new BadRequestException(
+                'Não é possível gerar um código para o evento que já passou!',
+            );
+        }
+
+        if (eventoExiste.codigo) {
+            throw new BadRequestException(
+                'Já existe um código de evento gerado!',
+            );
+        }
+
+        try {
+            var codigoAleatorio = '';
+            for (var i = 0; i < 5; i++) {
+                codigoAleatorio += Math.floor(Math.random() * 10);
+            }
+
+            codigoAleatorio += id.substring(4, 7);
+
+            return await this.prismaService.evento.update({
+                include: {
+                    local: true,
+                    presenca: {
+                        select: {
+                            id: true,
+                        },
+                    },
+                },
+                where: {
+                    id,
+                },
+                data: {
+                    codigo: codigoAleatorio,
+                },
             });
         } catch {
             throw new BadRequestException(

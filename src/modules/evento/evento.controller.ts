@@ -115,7 +115,6 @@ export class EventoController {
         return new DefaultResponseDTO(eventos, 'Evento retornado com sucesso');
     }
 
-    //Listagem de evento unico
     @Get('/:id')
     @HttpCode(HttpStatus.OK)
     async findUnique(
@@ -124,6 +123,15 @@ export class EventoController {
     ) {
         const events = await this.eventService.findUnique(id, usuarioId);
         return new DefaultResponseDTO(events, 'Evento retornado com sucesso');
+    }
+
+    @UseGuards(JwtAuthGuard, CargoGuard)
+    @SomenteCargos(CargoPosicao.COORDENADOR, CargoPosicao.DIRETOR)
+    @Post('/gerar-codigo/:id')
+    @HttpCode(HttpStatus.OK)
+    async gerarCodigoEvento(@Param('id') id: string) {
+        const event = await this.eventService.gerarCodigoEvento(id);
+        return new DefaultResponseDTO(event, 'Evento atualizado com sucesso');
     }
 
     @UseGuards(JwtAuthGuard)
