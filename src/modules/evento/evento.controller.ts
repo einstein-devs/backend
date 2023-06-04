@@ -15,10 +15,13 @@ import {
     UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { CargoPosicao } from '@prisma/client';
 import * as fs from 'fs-extra';
 import { diskStorage } from 'multer';
 import * as path from 'path';
 import { extname } from 'path';
+import { SomenteCargos } from 'src/guards/cargo.decorator';
+import { CargoGuard } from 'src/guards/cargo.guard';
 import { DefaultResponseDTO } from 'src/shared/dto/default-response.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CreateEventDto } from './dto/create-evento-dto';
@@ -83,11 +86,23 @@ export class EventoController {
         }
     }
 
-    //Listagem de eventos
     @Get()
     @HttpCode(HttpStatus.OK)
     async findMany(@Query() filtros: FindManyEventosDto) {
         const events = await this.eventService.findMany(filtros);
+        return new DefaultResponseDTO(events, 'Eventos retornados com sucesso');
+    }
+
+    @UseGuards(JwtAuthGuard, CargoGuard)
+    @SomenteCargos(CargoPosicao.COORDENADOR, CargoPosicao.DIRETOR)
+    @Get('/dashboard')
+    @HttpCode(HttpStatus.OK)
+    async findManyDashboard(@Req() req, @Query() filtros: FindManyEventosDto) {
+        const usuarioId = req.user.id;
+        const events = await this.eventService.findManyDashboard(
+            filtros,
+            usuarioId,
+        );
         return new DefaultResponseDTO(events, 'Eventos retornados com sucesso');
     }
 

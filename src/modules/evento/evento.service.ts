@@ -77,7 +77,62 @@ export class EventoService {
         }
     }
 
-    //Listagem de eventos
+    async findManyDashboard(filtros: FindManyEventosDto, usuarioId: string) {
+        try {
+            const usuario = await this.prismaService.usuario.findUnique({
+                include: {
+                    cargo: true,
+                },
+                where: {
+                    id: usuarioId,
+                },
+            });
+
+            console.log('XIIIIIII');
+            console.log(usuario.cargo.posicao);
+
+            if (usuario.cargo.posicao == 'DIRETOR') {
+                return await this.prismaService.evento.findMany({
+                    include: {
+                        usuario: {
+                            select: {
+                                nome: true,
+                            },
+                        },
+                    },
+                    where: {
+                        titulo: {
+                            contains: filtros.search,
+                            mode: 'insensitive',
+                        },
+                    },
+                });
+            } else {
+                return await this.prismaService.evento.findMany({
+                    include: {
+                        usuario: {
+                            select: {
+                                nome: true,
+                            },
+                        },
+                    },
+                    where: {
+                        titulo: {
+                            contains: filtros.search,
+                            mode: 'insensitive',
+                        },
+                        usuarioId,
+                    },
+                });
+            }
+        } catch (e) {
+            console.log(e);
+            throw new BadRequestException(
+                'Ocorreu um erro ao listar os eventos',
+            );
+        }
+    }
+
     async findMany(filtros: FindManyEventosDto) {
         try {
             return await this.prismaService.evento.findMany({

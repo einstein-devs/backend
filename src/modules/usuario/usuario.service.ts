@@ -60,6 +60,49 @@ export class UsuarioService {
         }
     }
 
+    async findAllCoordenadores(filtros: FindManyAlunosDto) {
+        try {
+            let whereOr: any = {
+                cargo: {
+                    isNot: {
+                        posicao: {
+                            in: ['DIRETOR', 'ALUNO'],
+                        },
+                    },
+                },
+            };
+
+            if (filtros.search && filtros.search != '') {
+                whereOr['OR'] = [
+                    {
+                        nome: {
+                            contains: filtros.search,
+                            mode: 'insensitive',
+                        },
+                    },
+                    {
+                        email: {
+                            contains: filtros.search,
+                            mode: 'insensitive',
+                        },
+                    },
+                ];
+            }
+
+            return await this.prismaService.usuario.findMany({
+                include: {
+                    cursoCoordenado: true,
+                    cargo: true,
+                },
+                where: { ...whereOr },
+            });
+        } catch {
+            throw new InternalServerErrorException(
+                'Ocorreu um erro ao buscar todos os usuários!',
+            );
+        }
+    }
+
     async findAllAlunos(filtros: FindManyAlunosDto) {
         try {
             let whereOr: any = {
@@ -259,18 +302,86 @@ export class UsuarioService {
 
             codigoAleatorio += curso.id.substring(4, 7);
 
+            const senhaEncriptada = await hash(codigoAleatorio, 8);
+
             return await this.prismaService.usuario.create({
                 data: {
                     codigo: codigoAleatorio,
                     nome: data.nome,
                     email: data.email,
-                    senha: codigoAleatorio,
+                    senha: senhaEncriptada,
                     cargo: {
                         connect: {
                             posicao: CargoPosicao.ALUNO,
                         },
                     },
                     curso: {
+                        connect: {
+                            id: data.cursoId,
+                        },
+                    },
+                },
+            });
+        } catch {
+            throw new InternalServerErrorException(
+                'Ocorreu um erro ao criar um novo usuário!',
+            );
+        }
+    }
+
+    async createUserCoordenador(data: UsuarioDto): Promise<usuario> {
+        const curso = await this.prismaService.curso.findUnique({
+            where: {
+                id: data.cursoId,
+            },
+        });
+
+        if (!curso) {
+            throw new NotFoundException('Curso não encontrado!');
+        }
+
+        const usuarioExiste = await this.prismaService.usuario.findFirst({
+            where: {
+                cursoCoordenadoId: data.cursoId,
+                OR: {
+                    nome: {
+                        equals: data.nome,
+                        mode: 'insensitive',
+                    },
+                    email: {
+                        equals: data.email,
+                        mode: 'insensitive',
+                    },
+                },
+            },
+        });
+
+        if (usuarioExiste) {
+            throw new BadRequestException('O usuario ja existe!');
+        }
+
+        try {
+            var codigoAleatorio = '';
+            for (var i = 0; i < 5; i++) {
+                codigoAleatorio += Math.floor(Math.random() * 10);
+            }
+
+            codigoAleatorio += curso.id.substring(4, 7);
+
+            const senhaEncriptada = await hash(codigoAleatorio, 8);
+
+            return await this.prismaService.usuario.create({
+                data: {
+                    codigo: codigoAleatorio,
+                    nome: data.nome,
+                    email: data.email,
+                    senha: senhaEncriptada,
+                    cargo: {
+                        connect: {
+                            posicao: CargoPosicao.COORDENADOR,
+                        },
+                    },
+                    cursoCoordenado: {
                         connect: {
                             id: data.cursoId,
                         },

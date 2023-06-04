@@ -34,8 +34,12 @@ export class CentroController {
 
     @SomenteCargos(CargoPosicao.DIRETOR)
     @Post()
-    async postCentro(@Body() createCentroDto: CreateCentroDto) {
-        const centroCriado = await this.centroService.create(createCentroDto);
+    async postCentro(@Req() req, @Body() createCentroDto: CreateCentroDto) {
+        const usuarioId: string = req.user.id;
+        const centroCriado = await this.centroService.create(
+            createCentroDto,
+            usuarioId,
+        );
         return new DefaultResponseDTO(
             centroCriado,
             'Centro criado com sucesso!',

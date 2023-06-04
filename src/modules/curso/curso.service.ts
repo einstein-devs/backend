@@ -18,35 +18,51 @@ export class CursoService {
                 },
             });
 
-            let cursos;
+            let cursos = [];
 
-            if (usuario.cargo.posicao == 'DIRETOR') {
+            let where: any = {
+                nome: {
+                    contains: filtros.search,
+                    mode: 'insensitive',
+                },
+            };
+
+            console.log(filtros);
+
+            if (filtros.somenteSemCoordenadores) {
                 cursos = await this.prisma.curso.findMany({
                     include: {
                         centro: true,
                         _count: true,
                     },
                     where: {
-                        nome: {
-                            contains: filtros.search,
-                            mode: 'insensitive',
-                        },
+                        ...where,
+                        coordenadorId: null,
                     },
                 });
             } else {
-                cursos = await this.prisma.curso.findMany({
-                    include: {
-                        centro: true,
-                        _count: true,
-                    },
-                    where: {
-                        nome: {
-                            contains: filtros.search,
-                            mode: 'insensitive',
+                if (usuario.cargo.posicao == 'DIRETOR') {
+                    cursos = await this.prisma.curso.findMany({
+                        include: {
+                            centro: true,
+                            _count: true,
                         },
-                        coordenadorId: usuarioId,
-                    },
-                });
+                        where: {
+                            ...where,
+                        },
+                    });
+                } else {
+                    cursos = await this.prisma.curso.findMany({
+                        include: {
+                            centro: true,
+                            _count: true,
+                        },
+                        where: {
+                            ...where,
+                            coordenadorId: usuarioId,
+                        },
+                    });
+                }
             }
 
             return cursos.map(curso => {
@@ -64,31 +80,34 @@ export class CursoService {
 
     async create(createCurso: CreateCursoDto, usuarioId: string) {
         try {
-            let coordenadorId: string;
+            let coordenadorId: string | null = null;
 
             if (createCurso.coordenadorId) {
                 coordenadorId = createCurso.coordenadorId;
-            } else {
-                coordenadorId = usuarioId;
             }
 
-            return await this.prisma.curso.create({
-                data: {
-                    nome: createCurso.nome,
-                    ementa: createCurso.ementa,
-                    usuario: {
-                        connect: { id: usuarioId },
-                    },
+            let dataCoordenador: any = {};
+
+            if (coordenadorId) {
+                dataCoordenador = {
                     coordenador: {
                         connect: {
                             id: coordenadorId,
                         },
                     },
+                };
+            }
+
+            return await this.prisma.curso.create({
+                data: {
+                    nome: createCurso.nome,
+                    ementa: createCurso.ementa ?? null,
                     centro: {
                         connect: {
                             id: createCurso.centroId,
                         },
                     },
+                    ...dataCoordenador,
                 },
             });
         } catch (_) {

@@ -46,10 +46,10 @@ model curso {
 
   usuario usuario[] @relation()
 
-  centro        centro  @relation(fields: [centroId], references: [id])
-  centroId      String  @map("id_centro") @db.Uuid()
-  coordenador   usuario @relation(name: "coordenador", fields: [coordenadorId], references: [id])
-  coordenadorId String  @unique @map("id_coordenador") @db.Uuid()
+  centro        centro   @relation(fields: [centroId], references: [id])
+  centroId      String   @map("id_centro") @db.Uuid()
+  coordenador   usuario? @relation(name: "coordenador", fields: [coordenadorId], references: [id])
+  coordenadorId String?  @unique @map("id_coordenador") @db.Uuid()
 
   dataCriacao     DateTime @default(now()) @map("data_criacao") @db.Timestamptz(3)
   dataAtualizacao DateTime @updatedAt() @map("data_atualizacao") @db.Timestamptz(3)

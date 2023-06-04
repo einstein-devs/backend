@@ -10,6 +10,7 @@ import {
     Post,
     Put,
     Query,
+    UseGuards,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 
@@ -17,7 +18,9 @@ import { UsuarioService } from './usuario.service';
 
 import { CargoPosicao } from '@prisma/client';
 import { SomenteCargos } from 'src/guards/cargo.decorator';
+import { CargoGuard } from 'src/guards/cargo.guard';
 import { DefaultResponseDTO } from 'src/shared/dto/default-response.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { FindManyAlunosDto } from './dto/find-many-alunos.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 import { UsuarioDto } from './dto/usuario.dto';
@@ -31,6 +34,15 @@ export class UsuarioController {
     @HttpCode(HttpStatus.OK)
     async findAllAlunos(@Query() filtros: FindManyAlunosDto) {
         const alunos = await this.usuarioService.findAllAlunos(filtros);
+        return new DefaultResponseDTO(alunos);
+    }
+
+    @UseGuards(JwtAuthGuard, CargoGuard)
+    @SomenteCargos(CargoPosicao.DIRETOR)
+    @Get('/coordenadores')
+    @HttpCode(HttpStatus.OK)
+    async findAllCoordenadores(@Query() filtros: FindManyAlunosDto) {
+        const alunos = await this.usuarioService.findAllCoordenadores(filtros);
         return new DefaultResponseDTO(alunos);
     }
 
@@ -58,6 +70,16 @@ export class UsuarioController {
     @HttpCode(HttpStatus.CREATED)
     async createUser(@Body() createUsuarioDto: UsuarioDto) {
         const usuarioCriado = await this.usuarioService.createUser(
+            createUsuarioDto,
+        );
+        return new DefaultResponseDTO(usuarioCriado);
+    }
+
+    @SomenteCargos(CargoPosicao.DIRETOR)
+    @Post('/create/coordenador')
+    @HttpCode(HttpStatus.CREATED)
+    async createUserCoordenador(@Body() createUsuarioDto: UsuarioDto) {
+        const usuarioCriado = await this.usuarioService.createUserCoordenador(
             createUsuarioDto,
         );
         return new DefaultResponseDTO(usuarioCriado);

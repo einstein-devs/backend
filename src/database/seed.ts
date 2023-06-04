@@ -75,21 +75,6 @@ async function populateDatabase() {
                 },
             },
         });
-        const curso = await prisma.curso.create({
-            data: {
-                nome: 'Tecnico em Informatica',
-                centro: {
-                    connect: {
-                        id: centro.id,
-                    },
-                },
-                coordenador: {
-                    connect: {
-                        codigo: '1',
-                    },
-                },
-            },
-        });
     } catch (error) {
         console.log(`Erro ao criar padrao: ${error}`);
     }

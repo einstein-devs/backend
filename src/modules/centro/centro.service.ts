@@ -66,12 +66,12 @@ export class CentroService {
         }
     }
 
-    async create(createCentro: CreateCentroDto) {
+    async create(createCentro: CreateCentroDto, diretorId: string) {
         try {
             return await this.prisma.centro.create({
                 data: {
                     nome: createCentro.nome,
-                    diretorId: createCentro.diretorId,
+                    diretorId: diretorId,
                 },
             });
         } catch (_) {
