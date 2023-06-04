@@ -2,6 +2,7 @@ import { Global, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AuthModule } from './modules/auth/auth.module';
+import { CentroModule } from './modules/centro/centro.module';
 import { CertificadoModule } from './modules/certificado/certificado.module';
 import { CursoModule } from './modules/curso/curso.module';
 import { EventoModule } from './modules/evento/evento.module';
@@ -17,6 +18,7 @@ import { UsuarioService } from './modules/usuario/usuario.service';
         CertificadoModule,
         AuthModule,
         PresencaModule,
+        CentroModule,
         CursoModule,
         EventoModule,
         ConfigModule.forRoot({

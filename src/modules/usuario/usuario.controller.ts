@@ -46,8 +46,6 @@ export class UsuarioController {
     async findByUser(@Param('codigo') codigo: string) {
         const usuario = await this.usuarioService.findOne(codigo);
 
-        //delete usuario.senha;
-
         if (!usuario) {
             throw new NotFoundException('Usuário não encontrado!');
         }

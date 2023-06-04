@@ -1,6 +1,6 @@
 import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
-export class CreateCursoDto {
+export class CreateCentroDto {
     @IsString()
     @IsNotEmpty()
     nome: string;
@@ -12,10 +12,9 @@ export class CreateCursoDto {
 
     @IsString()
     @IsNotEmpty()
-    centroId: string;
+    cursoId: string;
 
     @IsString()
     @IsNotEmpty()
-    @IsOptional()
-    coordenadorId?: string;
+    diretorId: string;
 }

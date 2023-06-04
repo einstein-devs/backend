@@ -1,13 +1,13 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateCursoDto } from './dtos/create-curso.dto';
-import { FindManyCursosDto } from './dtos/find-many-cursos.dto';
+import { CreateCentroDto } from './dtos/create-centro.dto';
+import { FindManyCentrosDto } from './dtos/find-many-centros.dto';
 
 @Injectable()
-export class CursoService {
+export class CentroService {
     constructor(private prisma: PrismaService) {}
 
-    async findMany(filtros: FindManyCursosDto, usuarioId: string) {
+    async findMany(filtros: FindManyCentrosDto, usuarioId: string) {
         try {
             const usuario = await this.prisma.usuario.findUnique({
                 include: {
@@ -18,12 +18,12 @@ export class CursoService {
                 },
             });
 
-            let cursos;
+            let centros = [];
 
             if (usuario.cargo.posicao == 'DIRETOR') {
-                cursos = await this.prisma.curso.findMany({
+                centros = await this.prisma.centro.findMany({
                     include: {
-                        centro: true,
+                        curso: true,
                         _count: true,
                     },
                     where: {
@@ -34,9 +34,9 @@ export class CursoService {
                     },
                 });
             } else {
-                cursos = await this.prisma.curso.findMany({
+                centros = await this.prisma.centro.findMany({
                     include: {
-                        centro: true,
+                        curso: true,
                         _count: true,
                     },
                     where: {
@@ -44,15 +44,19 @@ export class CursoService {
                             contains: filtros.search,
                             mode: 'insensitive',
                         },
-                        coordenadorId: usuarioId,
+                        curso: {
+                            some: {
+                                coordenadorId: usuarioId,
+                            },
+                        },
                     },
                 });
             }
 
-            return cursos.map(curso => {
+            return centros.map(centro => {
                 return {
-                    ...curso,
-                    quantidadeAlunos: curso._count.usuario,
+                    ...centro,
+                    quantidadeCursos: centro._count.curso,
                 };
             });
         } catch {
@@ -62,38 +66,17 @@ export class CursoService {
         }
     }
 
-    async create(createCurso: CreateCursoDto, usuarioId: string) {
+    async create(createCentro: CreateCentroDto) {
         try {
-            let coordenadorId: string;
-
-            if (createCurso.coordenadorId) {
-                coordenadorId = createCurso.coordenadorId;
-            } else {
-                coordenadorId = usuarioId;
-            }
-
-            return await this.prisma.curso.create({
+            return await this.prisma.centro.create({
                 data: {
-                    nome: createCurso.nome,
-                    ementa: createCurso.ementa,
-                    usuario: {
-                        connect: { id: usuarioId },
-                    },
-                    coordenador: {
-                        connect: {
-                            id: coordenadorId,
-                        },
-                    },
-                    centro: {
-                        connect: {
-                            id: createCurso.centroId,
-                        },
-                    },
+                    nome: createCentro.nome,
+                    diretorId: createCentro.diretorId,
                 },
             });
         } catch (_) {
             throw new InternalServerErrorException(
-                'Ocorreu um erro ao criar um novo curso!',
+                'Ocorreu um erro ao criar um novo centro!',
             );
         }
     }

@@ -125,7 +125,7 @@ export class UsuarioService {
 
     async findOneById(id: string) {
         try {
-            return await this.prismaService.usuario.findFirstOrThrow({
+            const usuario = await this.prismaService.usuario.findFirstOrThrow({
                 include: {
                     curso: true,
                     cargo: {
@@ -139,6 +139,9 @@ export class UsuarioService {
                     id: id,
                 },
             });
+            console.log(usuario);
+
+            return usuario;
         } catch {
             return null;
         }
