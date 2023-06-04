@@ -268,15 +268,9 @@ export class UsuarioService {
         const usuarioExiste = await this.prismaService.usuario.findFirst({
             where: {
                 cursoId: data.cursoId,
-                OR: {
-                    nome: {
-                        equals: data.nome,
-                        mode: 'insensitive',
-                    },
-                    email: {
-                        equals: data.email,
-                        mode: 'insensitive',
-                    },
+                email: {
+                    equals: data.email,
+                    mode: 'insensitive',
                 },
             },
         });
@@ -334,15 +328,9 @@ export class UsuarioService {
         const usuarioExiste = await this.prismaService.usuario.findFirst({
             where: {
                 cursoCoordenadoId: data.cursoId,
-                OR: {
-                    nome: {
-                        equals: data.nome,
-                        mode: 'insensitive',
-                    },
-                    email: {
-                        equals: data.email,
-                        mode: 'insensitive',
-                    },
+                email: {
+                    equals: data.email,
+                    mode: 'insensitive',
                 },
             },
         });

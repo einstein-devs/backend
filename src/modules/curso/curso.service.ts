@@ -1,4 +1,8 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+    BadRequestException,
+    Injectable,
+    InternalServerErrorException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateCursoDto } from './dtos/create-curso.dto';
 import { FindManyCursosDto } from './dtos/find-many-cursos.dto';
@@ -77,6 +81,19 @@ export class CursoService {
     }
 
     async create(createCurso: CreateCursoDto, usuarioId: string) {
+        const cursoExiste = await this.prisma.curso.findFirst({
+            where: {
+                nome: {
+                    equals: createCurso.nome,
+                    mode: 'insensitive',
+                },
+            },
+        });
+
+        if (cursoExiste) {
+            throw new BadRequestException('Curso ja existe!');
+        }
+
         try {
             let coordenadorId: string | null = null;
 

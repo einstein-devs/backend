@@ -1,4 +1,8 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+    BadRequestException,
+    Injectable,
+    InternalServerErrorException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { FindManyLocaisDto } from './dto/find-many-locais.dto';
 import { LocalDto } from './dto/local.dto';
@@ -40,6 +44,19 @@ export class LocalService {
     }
 
     async create(localData: LocalDto) {
+        const localExiste = await this.prisma.local.findFirst({
+            where: {
+                titulo: {
+                    equals: localData.titulo,
+                    mode: 'insensitive',
+                },
+            },
+        });
+
+        if (localExiste) {
+            throw new BadRequestException('Local ja existe!');
+        }
+
         try {
             return await this.prisma.local.create({
                 data: {

@@ -38,10 +38,10 @@ export class EventoService {
                 localId: data.localId,
                 AND: {
                     dataHoraInicio: {
-                        lte: new Date(data.dataHoraInicio),
+                        lte: data.dataHoraInicio,
                     },
                     dataHoraTermino: {
-                        gt: new Date(data.dataHoraInicio),
+                        gt: data.dataHoraInicio,
                     },
                 },
             },
