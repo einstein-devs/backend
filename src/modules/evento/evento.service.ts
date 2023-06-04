@@ -58,8 +58,8 @@ export class EventoService {
                 data: {
                     titulo: data.titulo,
                     descricao: data.descricao,
-                    dataHoraInicio: new Date(data.dataHoraInicio),
-                    dataHoraTermino: new Date(data.dataHoraTermino),
+                    dataHoraInicio: data.dataHoraInicio,
+                    dataHoraTermino: data.dataHoraTermino,
                     localId: data.localId,
                     usuarioId: usuarioId,
                     urlImagem: imagePath,
