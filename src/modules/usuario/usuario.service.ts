@@ -150,6 +150,7 @@ export class UsuarioService {
         try {
             return await this.prismaService.usuario.findFirstOrThrow({
                 include: {
+                    curso: true,
                     cargo: {
                         select: {
                             id: true,
@@ -182,7 +183,6 @@ export class UsuarioService {
                     id: id,
                 },
             });
-            console.log(usuario);
 
             return usuario;
         } catch {
@@ -192,13 +192,7 @@ export class UsuarioService {
 
     async updateUser(
         codigoUsuario: string,
-        {
-            email,
-            novaSenha,
-            senha,
-            confirmacaoNovaSenha,
-            nome,
-        }: UpdateUsuarioDto,
+        { email, novaSenha, senha, confirmacaoNovaSenha }: UpdateUsuarioDto,
     ) {
         const data: Partial<UpdateUsuarioDto> = {};
 
@@ -224,8 +218,6 @@ export class UsuarioService {
                 data.email = email;
             }
 
-            data.nome = nome;
-
             if (novaSenha && confirmacaoNovaSenha) {
                 if (novaSenha == confirmacaoNovaSenha) {
                     const novaSenhaCriptografada = await hash(novaSenha, 8);
@@ -234,6 +226,8 @@ export class UsuarioService {
                     throw new BadRequestException('As senhas não coincidem!');
                 }
             }
+
+            console.log(data);
 
             return await this.prismaService.usuario.update({
                 where: {

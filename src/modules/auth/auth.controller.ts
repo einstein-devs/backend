@@ -3,6 +3,7 @@ import {
     Get,
     HttpCode,
     HttpStatus,
+    NotFoundException,
     Post,
     Req,
     Res,
@@ -34,6 +35,9 @@ export class AuthController {
     async findMe(@Req() req) {
         const usuarioId = req.user.id;
         const usuario = await this.authService.findMe(usuarioId);
+        if (!usuario) {
+            throw new NotFoundException('Usuario não encontrado!');
+        }
         return new DefaultResponseDTO(usuario);
     }
 }

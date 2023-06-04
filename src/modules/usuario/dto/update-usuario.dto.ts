@@ -1,33 +1,20 @@
-import {
-  IsEmail,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-  IsStrongPassword,
-} from 'class-validator';
+import { IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class UpdateUsuarioDto {
-  @IsNotEmpty()
-  @IsString()
-  @IsOptional()
-  nome: string;
+    @IsNotEmpty()
+    @IsEmail()
+    @IsOptional()
+    email: string;
 
-  @IsNotEmpty()
-  @IsEmail()
-  @IsOptional()
-  email: string;
+    @IsNotEmpty()
+    @IsString()
+    senha: string;
 
-  @IsNotEmpty()
-  @IsStrongPassword()
-  senha: string;
+    @IsNotEmpty()
+    @IsOptional()
+    novaSenha: string;
 
-  @IsNotEmpty()
-  @IsStrongPassword()
-  @IsOptional()
-  novaSenha: string;
-
-  @IsNotEmpty()
-  @IsStrongPassword()
-  @IsOptional()
-  confirmacaoNovaSenha: string;
+    @IsNotEmpty()
+    @IsOptional()
+    confirmacaoNovaSenha: string;
 }
