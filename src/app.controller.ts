@@ -1,6 +1,6 @@
 import { Controller, Get, NotFoundException, Param, Res } from '@nestjs/common';
-import { join } from 'path';
 import * as fs from 'fs-extra';
+import { join } from 'path';
 
 @Controller()
 export class AppController {

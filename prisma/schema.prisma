@@ -34,9 +34,10 @@ model usuario {
   centro      centro[]
   evento      evento[]
 
-  dataCriacao     DateTime  @default(now()) @map("data_criacao") @db.Timestamp()
-  dataAtualizacao DateTime  @updatedAt() @map("data_atualizacao") @db.Timestamp()
-  dataExclusao    DateTime? @map("data_exclusao") @db.Timestamp()
+  dataCriacao      DateTime           @default(now()) @map("data_criacao") @db.Timestamp()
+  dataAtualizacao  DateTime           @updatedAt() @map("data_atualizacao") @db.Timestamp()
+  dataExclusao     DateTime?          @map("data_exclusao") @db.Timestamp()
+  redefinicaoSenha redefinicaoSenha[]
 }
 
 model curso {
@@ -132,4 +133,14 @@ model presenca {
 
   dataInscricao DateTime  @default(now()) @map("data_inscricao") @db.Timestamp()
   dataPresenca  DateTime? @map("data_presenca") @db.Timestamp()
+}
+
+model redefinicaoSenha {
+  id String @id @default(uuid()) @db.Uuid()
+
+  usuario   usuario @relation(fields: [usuarioId], references: [id])
+  usuarioId String  @db.Uuid()
+  utilizado Boolean
+
+  dataEmissao DateTime @default(now()) @map("data_emissao") @db.Timestamp()
 }

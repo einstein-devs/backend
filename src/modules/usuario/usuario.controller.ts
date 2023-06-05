@@ -21,7 +21,9 @@ import { SomenteCargos } from 'src/guards/cargo.decorator';
 import { CargoGuard } from 'src/guards/cargo.guard';
 import { DefaultResponseDTO } from 'src/shared/dto/default-response.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { EsqueciSenhaDto } from './dto/esqueci-senha.dto';
 import { FindManyAlunosDto } from './dto/find-many-alunos.dto';
+import { RedefinirSenhaDto } from './dto/redefinir-senha.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 import { UsuarioDto } from './dto/usuario.dto';
 
@@ -44,6 +46,18 @@ export class UsuarioController {
     async findAllCoordenadores(@Query() filtros: FindManyAlunosDto) {
         const alunos = await this.usuarioService.findAllCoordenadores(filtros);
         return new DefaultResponseDTO(alunos);
+    }
+
+    @Post('/esqueci-senha')
+    async esqueciSenha(@Body() esqueciSenhaDto: EsqueciSenhaDto) {
+        return await this.usuarioService.enviarEmailEsqueciSenha(
+            esqueciSenhaDto.email,
+        );
+    }
+
+    @Post('/redefinir-senha')
+    async redefinirSenha(@Body() redefinirSenhaDto: RedefinirSenhaDto) {
+        return await this.usuarioService.redefinirSenha(redefinirSenhaDto);
     }
 
     @Get()

@@ -1,3 +1,4 @@
+import { MailerService } from '@nestjs-modules/mailer';
 import {
     BadRequestException,
     Injectable,
@@ -9,12 +10,16 @@ import { CargoPosicao, usuario } from '@prisma/client';
 import { compare, hash } from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
 import { FindManyAlunosDto } from './dto/find-many-alunos.dto';
+import { RedefinirSenhaDto } from './dto/redefinir-senha.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 import { UsuarioDto } from './dto/usuario.dto';
 
 @Injectable()
 export class UsuarioService {
-    constructor(private readonly prismaService: PrismaService) {}
+    constructor(
+        private readonly prismaService: PrismaService,
+        private readonly mailerService: MailerService,
+    ) {}
 
     async hasCargoPermission(filtros: {
         idUsuario: string;
@@ -370,6 +375,142 @@ export class UsuarioService {
         } catch {
             throw new InternalServerErrorException(
                 'Ocorreu um erro ao criar um novo usuário!',
+            );
+        }
+    }
+
+    async redefinirSenha(redefinirSenhaDto: RedefinirSenhaDto) {
+        if (
+            redefinirSenhaDto.novaSenha !=
+            redefinirSenhaDto.confirmacaoNovaSenha
+        ) {
+            throw new BadRequestException('As senhas são diferentes!');
+        }
+
+        const redefinicao = await this.prismaService.redefinicaoSenha.findFirst(
+            {
+                where: {
+                    id: redefinirSenhaDto.redefinicaoId,
+                    utilizado: false,
+                },
+            },
+        );
+
+        if (!redefinicao) {
+            throw new NotFoundException(
+                'Código de redefinição inválido ou expirado!',
+            );
+        }
+
+        const usuario = await this.prismaService.usuario.findFirst({
+            where: {
+                id: redefinicao.usuarioId,
+            },
+        });
+
+        if (!usuario) {
+            throw new NotFoundException('Usuário não encontrado!');
+        }
+
+        try {
+            const senhaCriptada = await hash(redefinirSenhaDto.novaSenha, 8);
+
+            await this.prismaService.$transaction([
+                this.prismaService.usuario.update({
+                    where: {
+                        id: redefinicao.usuarioId,
+                    },
+                    data: {
+                        senha: senhaCriptada,
+                    },
+                }),
+                this.prismaService.redefinicaoSenha.update({
+                    where: {
+                        id: redefinicao.id,
+                    },
+                    data: {
+                        utilizado: true,
+                    },
+                }),
+            ]);
+        } catch {
+            throw new InternalServerErrorException(
+                'Ocorreu um erro ao tentar recuperar a senha!',
+            );
+        }
+    }
+
+    async enviarEmailEsqueciSenha(email: string) {
+        const usuario = await this.prismaService.usuario.findFirst({
+            where: {
+                email,
+            },
+        });
+
+        if (!usuario) {
+            throw new NotFoundException('Usuário não encontrado!');
+        }
+
+        const redefinicoes =
+            await this.prismaService.redefinicaoSenha.findFirst({
+                where: {
+                    usuario: {
+                        email,
+                    },
+                    utilizado: false,
+                },
+            });
+
+        if (redefinicoes) {
+            throw new BadRequestException('Já existe um pedido pendente!');
+        }
+
+        try {
+            const redefinicao =
+                await this.prismaService.redefinicaoSenha.create({
+                    data: {
+                        usuarioId: usuario.id,
+                        utilizado: false,
+                    },
+                });
+
+            await this.mailerService.sendMail({
+                to: email,
+                from: 'eventon@gmail.com',
+                subject: 'Recuperação de senha',
+                html: `
+                <!DOCTYPE html>
+                <html>
+                <head><style>
+                        body {
+                            font-family: system-ui;
+                            background: white;
+                            color: black;
+                            text-align: center;
+                        }
+                        
+                        .main {
+                            padding: 20px;
+                        }
+                        
+                        a {
+                            color: orange;
+                        }
+                    </style></head>
+
+                    <body>
+                        <div class="main">
+                            <h1>Redefinir Senha</h1>
+                            
+                            <p>Uma alteração de senha foi solicitada, clique no link abaixo para redefinir sua senha!</p>
+                            <a href="http://localhost:9090/recuperar-senha/${redefinicao.id}" target="blank">Recuperar senha</a>
+                        </div>
+                    </body></html>
+                `,
+            });
+        } catch {
+            throw new InternalServerErrorException(
+                'Ocorreu um erro ao tentar recuperar a senha!',
             );
         }
     }
