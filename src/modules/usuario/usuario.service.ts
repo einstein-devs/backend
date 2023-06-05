@@ -9,6 +9,7 @@ import {
 import { CargoPosicao, usuario } from '@prisma/client';
 import { compare, hash } from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
+import { EsqueciSenhaDto } from './dto/esqueci-senha.dto';
 import { FindManyAlunosDto } from './dto/find-many-alunos.dto';
 import { RedefinirSenhaDto } from './dto/redefinir-senha.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
@@ -379,6 +380,32 @@ export class UsuarioService {
         }
     }
 
+    async validarRedefinirSenhaCodigo(id: string) {
+        try {
+            const redefinicao =
+                await this.prismaService.redefinicaoSenha.findFirst({
+                    where: {
+                        id: id,
+                        utilizado: false,
+                    },
+                    orderBy: {
+                        dataEmissao: 'desc',
+                    },
+                });
+
+            if (redefinicao.dataLimite.valueOf() < new Date().valueOf()) {
+                throw new BadRequestException(
+                    'Data limite para redefinição excedida!',
+                );
+            }
+        } catch (_) {
+            console.log(_);
+            throw new BadRequestException(
+                'Ocorreu um erro ao validar codigo de redefinição de senha!',
+            );
+        }
+    }
+
     async redefinirSenha(redefinirSenhaDto: RedefinirSenhaDto) {
         if (
             redefinirSenhaDto.novaSenha !=
@@ -393,12 +420,21 @@ export class UsuarioService {
                     id: redefinirSenhaDto.redefinicaoId,
                     utilizado: false,
                 },
+                orderBy: {
+                    dataEmissao: 'desc',
+                },
             },
         );
 
         if (!redefinicao) {
             throw new NotFoundException(
                 'Código de redefinição inválido ou expirado!',
+            );
+        }
+
+        if (redefinicao.dataLimite.valueOf() < new Date().valueOf()) {
+            throw new BadRequestException(
+                'Data limite para redefinição excedida!',
             );
         }
 
@@ -433,14 +469,17 @@ export class UsuarioService {
                     },
                 }),
             ]);
-        } catch {
+        } catch (_) {
             throw new InternalServerErrorException(
                 'Ocorreu um erro ao tentar recuperar a senha!',
             );
         }
     }
 
-    async enviarEmailEsqueciSenha(email: string) {
+    async enviarEmailEsqueciSenha({
+        email,
+        enviarParaDashboard,
+    }: EsqueciSenhaDto) {
         const usuario = await this.prismaService.usuario.findFirst({
             where: {
                 email,
@@ -459,20 +498,35 @@ export class UsuarioService {
                     },
                     utilizado: false,
                 },
+                orderBy: {
+                    dataEmissao: 'desc',
+                },
             });
 
         if (redefinicoes) {
-            throw new BadRequestException('Já existe um pedido pendente!');
+            if (redefinicoes.dataEmissao.valueOf() > new Date().valueOf()) {
+                throw new BadRequestException('Já existe um pedido pendente!');
+            }
         }
 
         try {
+            const dataAtual = new Date();
+            dataAtual.setMinutes(dataAtual.getMinutes() + 2);
+
             const redefinicao =
                 await this.prismaService.redefinicaoSenha.create({
                     data: {
                         usuarioId: usuario.id,
                         utilizado: false,
+                        dataLimite: dataAtual,
                     },
                 });
+
+            let hostWebServer = 'http://localhost:9090';
+
+            if (enviarParaDashboard) {
+                hostWebServer = 'http://localhost:3000';
+            }
 
             await this.mailerService.sendMail({
                 to: email,
@@ -503,7 +557,7 @@ export class UsuarioService {
                             <h1>Redefinir Senha</h1>
                             
                             <p>Uma alteração de senha foi solicitada, clique no link abaixo para redefinir sua senha!</p>
-                            <a href="http://localhost:9090/recuperar-senha/${redefinicao.id}" target="blank">Recuperar senha</a>
+                            <a href="${hostWebServer}/recuperar-senha/${redefinicao.id}" target="blank">Recuperar senha</a>
                         </div>
                     </body></html>
                 `,

@@ -139,8 +139,11 @@ model redefinicaoSenha {
   id String @id @default(uuid()) @db.Uuid()
 
   usuario   usuario @relation(fields: [usuarioId], references: [id])
-  usuarioId String  @db.Uuid()
+  usuarioId String  @map("id_usuario") @db.Uuid()
   utilizado Boolean
 
+  dataLimite  DateTime @default(now()) @map("data_limite") @db.Timestamp()
   dataEmissao DateTime @default(now()) @map("data_emissao") @db.Timestamp()
+
+  @@map("redefinicao_senha")
 }

@@ -50,14 +50,20 @@ export class UsuarioController {
 
     @Post('/esqueci-senha')
     async esqueciSenha(@Body() esqueciSenhaDto: EsqueciSenhaDto) {
-        return await this.usuarioService.enviarEmailEsqueciSenha(
-            esqueciSenhaDto.email,
-        );
+        await this.usuarioService.enviarEmailEsqueciSenha(esqueciSenhaDto);
+        return new DefaultResponseDTO({});
     }
 
     @Post('/redefinir-senha')
     async redefinirSenha(@Body() redefinirSenhaDto: RedefinirSenhaDto) {
-        return await this.usuarioService.redefinirSenha(redefinirSenhaDto);
+        await this.usuarioService.redefinirSenha(redefinirSenhaDto);
+        return new DefaultResponseDTO({});
+    }
+
+    @Post('/redefinir-senha/validar/:id')
+    async validarRedefinirSenhaCodigo(@Param('id') id: string) {
+        await this.usuarioService.validarRedefinirSenhaCodigo(id);
+        return new DefaultResponseDTO({});
     }
 
     @Get()
