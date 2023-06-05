@@ -24,6 +24,8 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { FindManyAlunosDto } from './dto/find-many-alunos.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 import { UsuarioDto } from './dto/usuario.dto';
+import { UpdateAlunoDto } from './dto/update-aluno.dto';
+import { UpdateCoordenadorDto } from './dto/update-coordenador.dto';
 
 @ApiTags('UsuarioController')
 @Controller('/usuarios')
@@ -83,6 +85,32 @@ export class UsuarioController {
             createUsuarioDto,
         );
         return new DefaultResponseDTO(usuarioCriado);
+    }
+
+    @Put('/alunos/:codigo/update')
+    @HttpCode(HttpStatus.NO_CONTENT)
+    async updateAlunoDashboard(
+        @Param('codigo') codigoUsuario: string,
+        @Body() updateAlunoDto: UpdateAlunoDto,
+    ) {
+        await this.usuarioService.updateAlunoDashboard(
+            codigoUsuario,
+            updateAlunoDto,
+        );
+        return new DefaultResponseDTO({}, 'Usuário atualizado com sucesso!');
+    }
+
+    @Put('/coordenador/:codigo/update')
+    @HttpCode(HttpStatus.NO_CONTENT)
+    async updateCoordenadorDashboard(
+        @Param('codigo') codigoUsuario: string,
+        @Body() updateCoordenadorDto: UpdateCoordenadorDto,
+    ) {
+        await this.usuarioService.updateAlunoDashboard(
+            codigoUsuario,
+            updateCoordenadorDto,
+        );
+        return new DefaultResponseDTO({}, 'Usuário atualizado com sucesso!');
     }
 
     @Put('/:codigo/update')

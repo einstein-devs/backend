@@ -6,6 +6,7 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateEventDto } from './dto/create-evento-dto';
 import { FindManyEventosDto } from './dto/find-many-eventos.dto';
+import { UpdateEventoDTO } from './dto/update-evento-dto';
 
 @Injectable()
 export class EventoService {
@@ -217,13 +218,45 @@ export class EventoService {
     }
 
     //Alteração de eventos
-    async updateEvent(id: string, updateEventDto: Partial<any>): Promise<any> {
+    async updateEvent(id: string, updateEventDto: UpdateEventoDTO) {
+        const evento = await this.prismaService.evento.findFirst({
+            where: {
+                id,
+            },
+        });
+        if (!evento) {
+            throw new NotFoundException('Evento não encontrado!');
+        }
+
+        if (evento.dataHoraInicio.valueOf() <= new Date().valueOf()) {
+            throw new BadRequestException('Evento em curso ou finalizado!');
+        }
+
         try {
+            let dataToUpdate: any = {};
+            console.log(updateEventDto);
+
+            if (updateEventDto.titulo) {
+                dataToUpdate['titulo'] = updateEventDto.titulo;
+            }
+            if (updateEventDto.descricao) {
+                dataToUpdate['descricao'] = updateEventDto.descricao;
+            }
+            if (updateEventDto.dataHoraInicio) {
+                dataToUpdate['dataHoraInicio'] = updateEventDto.dataHoraInicio;
+            }
+            if (updateEventDto.dataHoraTermino) {
+                dataToUpdate['dataHoraTermino'] =
+                    updateEventDto.dataHoraTermino;
+            }
+
+            console.log(dataToUpdate);
+
             return await this.prismaService.evento.update({
                 where: {
                     id,
                 },
-                data: updateEventDto,
+                data: dataToUpdate,
             });
         } catch {
             throw new BadRequestException(
