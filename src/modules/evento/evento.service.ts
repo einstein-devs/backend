@@ -234,7 +234,6 @@ export class EventoService {
 
         try {
             let dataToUpdate: any = {};
-            console.log(updateEventDto);
 
             if (updateEventDto.titulo) {
                 dataToUpdate['titulo'] = updateEventDto.titulo;
@@ -249,8 +248,6 @@ export class EventoService {
                 dataToUpdate['dataHoraTermino'] =
                     updateEventDto.dataHoraTermino;
             }
-
-            console.log(dataToUpdate);
 
             return await this.prismaService.evento.update({
                 where: {

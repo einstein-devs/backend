@@ -34,6 +34,7 @@ export class CursoService {
             if (filtros.somenteSemCoordenadores) {
                 cursos = await this.prisma.curso.findMany({
                     include: {
+                        coordenador: true,
                         centro: true,
                         _count: true,
                     },
@@ -47,6 +48,7 @@ export class CursoService {
                     cursos = await this.prisma.curso.findMany({
                         include: {
                             centro: true,
+                            coordenador: true,
                             _count: true,
                         },
                         where: {
@@ -57,6 +59,7 @@ export class CursoService {
                     cursos = await this.prisma.curso.findMany({
                         include: {
                             centro: true,
+                            coordenador: true,
                             _count: true,
                         },
                         where: {

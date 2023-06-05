@@ -25,7 +25,6 @@ import { EsqueciSenhaDto } from './dto/esqueci-senha.dto';
 import { FindManyAlunosDto } from './dto/find-many-alunos.dto';
 import { RedefinirSenhaDto } from './dto/redefinir-senha.dto';
 import { UpdateAlunoDto } from './dto/update-aluno.dto';
-import { UpdateCoordenadorDto } from './dto/update-coordenador.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 import { UsuarioDto } from './dto/usuario.dto';
 
@@ -39,13 +38,6 @@ export class UsuarioController {
     async findAllAlunos(@Query() filtros: FindManyAlunosDto) {
         const alunos = await this.usuarioService.findAllAlunos(filtros);
         return new DefaultResponseDTO(alunos);
-    }
-
-    @Get('/alunos/:codigo')
-    @HttpCode(HttpStatus.OK)
-    async findAluno(@Param('codigo') codigo: string) {
-        const aluno = await this.usuarioService.findAluno(codigo);
-        return new DefaultResponseDTO(aluno);
     }
 
     @UseGuards(JwtAuthGuard, CargoGuard)
@@ -131,17 +123,39 @@ export class UsuarioController {
         );
     }
 
-    @Put('/coordenador/:codigo/update')
+    @SomenteCargos(CargoPosicao.DIRETOR)
+    @Put('/coordenadores/:codigo/update')
     @HttpCode(HttpStatus.NO_CONTENT)
     async updateCoordenadorDashboard(
         @Param('codigo') codigoUsuario: string,
-        @Body() updateCoordenadorDto: UpdateCoordenadorDto,
+        @Body() updateAlunoDto: UpdateAlunoDto,
     ) {
-        await this.usuarioService.updateAlunoDashboard(
+        const usuario = await this.usuarioService.updateCoordenadorDashboard(
             codigoUsuario,
-            updateCoordenadorDto,
+            updateAlunoDto,
         );
-        return new DefaultResponseDTO({}, 'Usuário atualizado com sucesso!');
+        return new DefaultResponseDTO(
+            usuario,
+            'Usuário atualizado com sucesso!',
+        );
+    }
+
+    @SomenteCargos(CargoPosicao.DIRETOR)
+    @Delete('/coordenadores/:codigo')
+    @HttpCode(HttpStatus.NO_CONTENT)
+    async deleteCoordenador(@Param('codigo') codigoUsuario: string) {
+        const usuario = await this.usuarioService.deleteCoordenador(
+            codigoUsuario,
+        );
+        return new DefaultResponseDTO(usuario, 'Usuário deletado com sucesso!');
+    }
+
+    @SomenteCargos(CargoPosicao.DIRETOR)
+    @Delete('/alunos/:codigo')
+    @HttpCode(HttpStatus.NO_CONTENT)
+    async deleteAluno(@Param('codigo') codigoUsuario: string) {
+        const usuario = await this.usuarioService.deleteAluno(codigoUsuario);
+        return new DefaultResponseDTO(usuario, 'Usuário deletado com sucesso!');
     }
 
     @Put('/:codigo/update')

@@ -128,6 +128,25 @@ export class UsuarioService {
         }
     }
 
+    async findCoordenador(codigo: string) {
+        try {
+            return await this.prismaService.usuario.findUnique({
+                include: {
+                    curso: true,
+                    cursoCoordenado: true,
+                    cargo: true,
+                },
+                where: {
+                    codigo,
+                },
+            });
+        } catch {
+            throw new InternalServerErrorException(
+                'Ocorreu um erro ao buscar o aluno!',
+            );
+        }
+    }
+
     async findAllAlunos(filtros: FindManyAlunosDto) {
         try {
             let whereOr: any = {
@@ -162,7 +181,10 @@ export class UsuarioService {
                     curso: true,
                     cargo: true,
                 },
-                where: { ...whereOr },
+                where: {
+                    ...whereOr,
+                    dataExclusao: null,
+                },
             });
         } catch {
             throw new InternalServerErrorException(
@@ -175,13 +197,9 @@ export class UsuarioService {
         try {
             return await this.prismaService.usuario.findFirstOrThrow({
                 include: {
+                    cursoCoordenado: true,
                     curso: true,
-                    cargo: {
-                        select: {
-                            id: true,
-                            posicao: true,
-                        },
-                    },
+                    cargo: true,
                 },
                 where: {
                     codigo: codigoDigitado,
@@ -284,6 +302,124 @@ export class UsuarioService {
         }
     }
 
+    async deleteAluno(codigo: string) {
+        try {
+            const usuario = await this.prismaService.usuario.findFirst({
+                where: {
+                    codigo,
+                },
+            });
+
+            if (!usuario) {
+                throw new NotFoundException('Usuário não encontrado!');
+            }
+
+            await this.prismaService.usuario.delete({
+                where: {
+                    codigo,
+                },
+            });
+        } catch {
+            throw new BadRequestException('Não possível excluir aluno!');
+        }
+    }
+
+    async deleteCoordenador(codigo: string) {
+        try {
+            const usuario = await this.prismaService.usuario.findFirst({
+                where: {
+                    codigo,
+                },
+            });
+
+            if (!usuario) {
+                throw new NotFoundException('Usuário não encontrado!');
+            }
+
+            await this.prismaService.usuario.delete({
+                where: {
+                    codigo,
+                },
+            });
+        } catch {
+            throw new BadRequestException('Não possível excluir coordenador!');
+        }
+    }
+
+    async updateCoordenadorDashboard(
+        codigoUsuario: string,
+        { email, cursoId, nome }: UpdateAlunoDto,
+    ) {
+        const data: any = {};
+
+        const usuarioExisteEmail = await this.prismaService.usuario.findFirst({
+            where: {
+                codigo: {
+                    not: {
+                        equals: codigoUsuario,
+                    },
+                },
+                email,
+            },
+        });
+
+        if (usuarioExisteEmail) {
+            throw new BadRequestException('Usuário com e-mail já existe!');
+        }
+
+        try {
+            const usuario = await this.prismaService.usuario.findFirst({
+                select: { senha: true, dataExclusao: true },
+                where: {
+                    codigo: codigoUsuario,
+                },
+            });
+
+            if (!usuario || usuario.dataExclusao) {
+                throw new NotFoundException('Usuário não encontrado!');
+            }
+
+            if (email) {
+                data.email = email;
+            }
+
+            if (cursoId) {
+                const curso = await this.prismaService.curso.findFirst({
+                    where: {
+                        id: cursoId,
+                    },
+                    select: {
+                        id: true,
+                    },
+                });
+
+                if (!curso) {
+                    throw new NotFoundException('Não existe esse curso!');
+                }
+
+                data['cursoCoordenado'] = {
+                    disconnect: true,
+                    connect: {
+                        id: curso.id,
+                    },
+                };
+            }
+
+            if (nome) {
+                data.nome = nome;
+            }
+
+            return await this.prismaService.usuario.update({
+                where: {
+                    codigo: codigoUsuario,
+                },
+                data: { ...data },
+            });
+        } catch (error) {
+            throw error;
+        }
+    }
+
     async updateUser(
         codigoUsuario: string,
         { email, novaSenha, senha, confirmacaoNovaSenha }: UpdateUsuarioDto,
@@ -362,7 +498,6 @@ export class UsuarioService {
 
         const usuarioExiste = await this.prismaService.usuario.findFirst({
             where: {
-                cursoId: data.cursoId,
                 email: {
                     equals: data.email,
                     mode: 'insensitive',
@@ -422,7 +557,6 @@ export class UsuarioService {
 
         const usuarioExiste = await this.prismaService.usuario.findFirst({
             where: {
-                cursoCoordenadoId: data.cursoId,
                 email: {
                     equals: data.email,
                     mode: 'insensitive',
