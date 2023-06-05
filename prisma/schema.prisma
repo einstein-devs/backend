@@ -34,9 +34,9 @@ model usuario {
   centro      centro[]
   evento      evento[]
 
-  dataCriacao     DateTime  @default(now()) @map("data_criacao") @db.Timestamptz()
-  dataAtualizacao DateTime  @updatedAt() @map("data_atualizacao") @db.Timestamptz()
-  dataExclusao    DateTime? @map("data_exclusao") @db.Timestamptz()
+  dataCriacao     DateTime  @default(now()) @map("data_criacao") @db.Timestamp()
+  dataAtualizacao DateTime  @updatedAt() @map("data_atualizacao") @db.Timestamp()
+  dataExclusao    DateTime? @map("data_exclusao") @db.Timestamp()
 }
 
 model curso {
@@ -51,8 +51,8 @@ model curso {
   coordenador   usuario? @relation(name: "coordenador", fields: [coordenadorId], references: [id])
   coordenadorId String?  @unique @map("id_coordenador") @db.Uuid()
 
-  dataCriacao     DateTime @default(now()) @map("data_criacao") @db.Timestamptz()
-  dataAtualizacao DateTime @updatedAt() @map("data_atualizacao") @db.Timestamptz()
+  dataCriacao     DateTime @default(now()) @map("data_criacao") @db.Timestamp()
+  dataAtualizacao DateTime @updatedAt() @map("data_atualizacao") @db.Timestamp()
 }
 
 model centro {
@@ -64,8 +64,8 @@ model centro {
   diretor   usuario @relation(fields: [diretorId], references: [id])
   diretorId String  @map("id_diretor") @db.Uuid()
 
-  dataCriacao     DateTime @default(now()) @map("data_criacao") @db.Timestamptz()
-  dataAtualizacao DateTime @updatedAt() @map("data_atualizacao") @db.Timestamptz()
+  dataCriacao     DateTime @default(now()) @map("data_criacao") @db.Timestamp()
+  dataAtualizacao DateTime @updatedAt() @map("data_atualizacao") @db.Timestamp()
 }
 
 model cargo {
@@ -74,7 +74,7 @@ model cargo {
   posicao CargoPosicao @unique
   usuario usuario[]
 
-  dataCriacao DateTime @default(now()) @map("data_criacao") @db.Timestamptz()
+  dataCriacao DateTime @default(now()) @map("data_criacao") @db.Timestamp()
 }
 
 model evento {
@@ -84,8 +84,8 @@ model evento {
   descricao       String?  @db.VarChar(255)
   codigo          String?  @db.VarChar(12)
   urlImagem       String?  @map("url_imagem")
-  dataHoraInicio  DateTime @map("data_hora_inicio") @db.Timestamptz()
-  dataHoraTermino DateTime @map("data_hora_termino") @db.Timestamptz()
+  dataHoraInicio  DateTime @map("data_hora_inicio") @db.Timestamp()
+  dataHoraTermino DateTime @map("data_hora_termino") @db.Timestamp()
 
   certificado certificado[]
   presenca    presenca[]
@@ -96,8 +96,8 @@ model evento {
   usuario   usuario @relation(fields: [usuarioId], references: [id])
   usuarioId String  @map("id_usuario") @db.Uuid()
 
-  dataCriacao     DateTime @default(now()) @map("data_criacao") @db.Timestamptz()
-  dataAtualizacao DateTime @updatedAt() @map("data_atualizacao") @db.Timestamptz()
+  dataCriacao     DateTime @default(now()) @map("data_criacao") @db.Timestamp()
+  dataAtualizacao DateTime @updatedAt() @map("data_atualizacao") @db.Timestamp()
 }
 
 model local {
@@ -107,8 +107,8 @@ model local {
   descricao String?  @db.VarChar(255)
   evento    evento[]
 
-  dataCriacao     DateTime @default(now()) @map("data_criacao") @db.Timestamptz()
-  dataAtualizacao DateTime @updatedAt() @map("data_atualizacao") @db.Timestamptz()
+  dataCriacao     DateTime @default(now()) @map("data_criacao") @db.Timestamp()
+  dataAtualizacao DateTime @updatedAt() @map("data_atualizacao") @db.Timestamp()
 }
 
 model certificado {
@@ -119,7 +119,7 @@ model certificado {
   usuarioId String  @map("id_usuario") @db.Uuid()
   eventoId  String  @map("id_evento") @db.Uuid()
 
-  dataEmissao DateTime @default(now()) @map("data_emissao") @db.Timestamptz()
+  dataEmissao DateTime @default(now()) @map("data_emissao") @db.Timestamp()
 }
 
 model presenca {
@@ -130,6 +130,6 @@ model presenca {
   usuarioId String  @map("id_usuario") @db.Uuid()
   eventoId  String  @map("id_evento") @db.Uuid()
 
-  dataInscricao DateTime  @default(now()) @map("data_inscricao") @db.Timestamptz()
-  dataPresenca  DateTime? @map("data_presenca") @db.Timestamptz()
+  dataInscricao DateTime  @default(now()) @map("data_inscricao") @db.Timestamp()
+  dataPresenca  DateTime? @map("data_presenca") @db.Timestamp()
 }

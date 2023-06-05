@@ -138,9 +138,21 @@ export class EventoService {
                         contains: filtros.search,
                         mode: 'insensitive',
                     },
+                    AND: [
+                        {
+                            dataHoraTermino: {
+                                gte: new Date(),
+                            },
+                        },
+                        {
+                            dataHoraInicio: {
+                                gte: new Date(),
+                            },
+                        },
+                    ],
                 },
             });
-        } catch (e) {
+        } catch {
             throw new BadRequestException(
                 'Ocorreu um erro ao listar os eventos',
             );
