@@ -3,6 +3,8 @@ import {
     Injectable,
     NotFoundException,
 } from '@nestjs/common';
+import { unlinkSync } from 'fs';
+import { join } from 'path';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateEventDto } from './dto/create-evento-dto';
 import { FindManyEventosDto } from './dto/find-many-eventos.dto';
@@ -98,6 +100,9 @@ export class EventoService {
                             mode: 'insensitive',
                         },
                     },
+                    orderBy: {
+                        dataCriacao: 'desc',
+                    },
                 });
             } else {
                 return await this.prismaService.evento.findMany({
@@ -114,6 +119,9 @@ export class EventoService {
                             mode: 'insensitive',
                         },
                         usuarioId,
+                    },
+                    orderBy: {
+                        dataCriacao: 'desc',
                     },
                 });
             }
@@ -151,6 +159,9 @@ export class EventoService {
                             },
                         },
                     ],
+                },
+                orderBy: {
+                    dataHoraInicio: 'asc',
                 },
             });
         } catch {
@@ -218,7 +229,11 @@ export class EventoService {
     }
 
     //Alteração de eventos
-    async updateEvent(id: string, updateEventDto: UpdateEventoDTO) {
+    async updateEvent(
+        id: string,
+        updateEventDto: UpdateEventoDTO,
+        imagePath?: string,
+    ) {
         const evento = await this.prismaService.evento.findFirst({
             where: {
                 id,
@@ -248,14 +263,38 @@ export class EventoService {
                 dataToUpdate['dataHoraTermino'] =
                     updateEventDto.dataHoraTermino;
             }
+            if (imagePath) {
+                dataToUpdate['urlImagem'] = imagePath;
+            }
 
-            return await this.prismaService.evento.update({
-                where: {
-                    id,
+            const response = await this.prismaService.$transaction(
+                async prisma => {
+                    if (imagePath && evento.urlImagem) {
+                        unlinkSync(
+                            join(
+                                __dirname,
+                                '..',
+                                '..',
+                                '..',
+                                'public',
+                                'images',
+                                evento.urlImagem,
+                            ),
+                        );
+                    }
+
+                    return await prisma.evento.update({
+                        where: {
+                            id,
+                        },
+                        data: dataToUpdate,
+                    });
                 },
-                data: dataToUpdate,
-            });
-        } catch {
+            );
+
+            return response;
+        } catch (_) {
+            console.log(_);
             throw new BadRequestException(
                 'Ocorreu um erro ao alterar os eventos',
             );

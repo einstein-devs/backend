@@ -1,12 +1,5 @@
 import { Type } from 'class-transformer';
-import {
-    IsDate,
-    IsInt,
-    IsNotEmpty,
-    IsNumber,
-    IsOptional,
-    IsString,
-} from 'class-validator';
+import { IsDate, IsNotEmpty, IsOptional } from 'class-validator';
 
 export class UpdateEventoDTO {
     @IsNotEmpty()

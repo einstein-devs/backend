@@ -135,10 +135,45 @@ export class EventoController {
 
     @UseGuards(JwtAuthGuard)
     @Put('/:id')
+    @UseInterceptors(
+        FileInterceptor('image', {
+            storage: diskStorage({
+                destination: uploadsDestination,
+                filename: (req, file, cb) => {
+                    const randomName = Array(32)
+                        .fill(null)
+                        .map(() => Math.round(Math.random() * 16).toString(16))
+                        .join('');
+                    return cb(
+                        null,
+                        `${randomName}${extname(file.originalname.trim())}`,
+                    );
+                },
+            }),
+        }),
+    )
     @HttpCode(HttpStatus.OK)
-    async updateEvent(@Param('id') id: string, @Body() data: UpdateEventoDTO) {
-        const event = await this.eventService.updateEvent(id, data);
-        return new DefaultResponseDTO(event, 'Evento atualizado com sucesso');
+    async updateEvent(
+        @Param('id') id: string,
+        @UploadedFile() file: Express.Multer.File,
+        @Body() data: UpdateEventoDTO,
+    ) {
+        try {
+            const event = await this.eventService.updateEvent(
+                id,
+                data,
+                file?.filename,
+            );
+            return new DefaultResponseDTO(
+                event,
+                'Evento atualizado com sucesso',
+            );
+        } catch (error) {
+            if (file) {
+                await fs.remove(file.path);
+            }
+            throw error;
+        }
     }
 
     @UseGuards(JwtAuthGuard)
