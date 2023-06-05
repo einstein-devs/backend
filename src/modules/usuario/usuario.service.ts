@@ -14,6 +14,7 @@ import { FindManyAlunosDto } from './dto/find-many-alunos.dto';
 import { RedefinirSenhaDto } from './dto/redefinir-senha.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 import { UsuarioDto } from './dto/usuario.dto';
+import { UpdateAlunoDto } from './dto/update-aluno.dto';
 
 @Injectable()
 export class UsuarioService {
@@ -192,6 +193,60 @@ export class UsuarioService {
             return usuario;
         } catch {
             return null;
+        }
+    }
+
+    async updateAlunoDashboard(
+        codigoUsuario: string,
+        { email, cursoId, nome }: UpdateAlunoDto,
+    ) {
+        const data: Partial<UpdateAlunoDto> = {};
+
+        try {
+            const usuario = await this.prismaService.usuario.findFirst({
+                select: { senha: true, dataExclusao: true },
+                where: {
+                    codigo: codigoUsuario,
+                },
+            });
+
+            if (!usuario || usuario.dataExclusao) {
+                throw new NotFoundException('Usuário não encontrado!');
+            }
+
+            if (email) {
+                data.email = email;
+            }
+
+            if (cursoId) {
+                const curso = await this.prismaService.curso.findFirst({
+                    where:{
+                        id: cursoId
+                    },
+                    select: {
+                        id: true
+                    }
+                })
+
+                if (!curso) {
+                    throw new NotFoundException("");
+                }
+
+                data.cursoId = curso.id;
+            }
+
+            if (nome) {
+                data.nome = nome;
+            }
+
+            return await this.prismaService.usuario.update({
+                where: {
+                    codigo: codigoUsuario,
+                },
+                data: data,
+            });
+        } catch (error) {
+            throw error;
         }
     }
 
