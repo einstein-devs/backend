@@ -144,18 +144,16 @@ export class UsuarioController {
     @Delete('/coordenadores/:codigo')
     @HttpCode(HttpStatus.NO_CONTENT)
     async deleteCoordenador(@Param('codigo') codigoUsuario: string) {
-        const usuario = await this.usuarioService.deleteCoordenador(
-            codigoUsuario,
-        );
-        return new DefaultResponseDTO(usuario, 'Usuário deletado com sucesso!');
+        await this.usuarioService.deleteCoordenador(codigoUsuario);
+        return new DefaultResponseDTO({}, 'Usuário deletado com sucesso!');
     }
 
     @SomenteCargos(CargoPosicao.DIRETOR)
     @Delete('/alunos/:codigo')
     @HttpCode(HttpStatus.NO_CONTENT)
     async deleteAluno(@Param('codigo') codigoUsuario: string) {
-        const usuario = await this.usuarioService.deleteAluno(codigoUsuario);
-        return new DefaultResponseDTO(usuario, 'Usuário deletado com sucesso!');
+        await this.usuarioService.deleteAluno(codigoUsuario);
+        return new DefaultResponseDTO({}, 'Usuário deletado com sucesso!');
     }
 
     @Put('/:codigo/update')

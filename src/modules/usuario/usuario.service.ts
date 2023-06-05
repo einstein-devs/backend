@@ -58,6 +58,9 @@ export class UsuarioService {
                     dataAtualizacao: true,
                     dataExclusao: true,
                 },
+                where: {
+                    dataExclusao: null,
+                },
             });
         } catch {
             throw new InternalServerErrorException(
@@ -111,7 +114,7 @@ export class UsuarioService {
 
     async findAluno(codigo: string) {
         try {
-            return await this.prismaService.usuario.findUnique({
+            return await this.prismaService.usuario.findFirst({
                 include: {
                     curso: true,
                     cursoCoordenado: true,
@@ -119,6 +122,7 @@ export class UsuarioService {
                 },
                 where: {
                     codigo,
+                    dataExclusao: null,
                 },
             });
         } catch {
@@ -203,6 +207,7 @@ export class UsuarioService {
                 },
                 where: {
                     codigo: codigoDigitado,
+                    dataExclusao: null,
                 },
             });
         } catch {
@@ -224,6 +229,7 @@ export class UsuarioService {
                 },
                 where: {
                     id: id,
+                    dataExclusao: null,
                 },
             });
 
@@ -247,6 +253,7 @@ export class UsuarioService {
                     },
                 },
                 email,
+                dataExclusao: null,
             },
         });
 
@@ -259,6 +266,7 @@ export class UsuarioService {
                 select: { senha: true, dataExclusao: true },
                 where: {
                     codigo: codigoUsuario,
+                    dataExclusao: null,
                 },
             });
 
@@ -307,6 +315,7 @@ export class UsuarioService {
             const usuario = await this.prismaService.usuario.findFirst({
                 where: {
                     codigo,
+                    dataExclusao: null,
                 },
             });
 
@@ -314,9 +323,12 @@ export class UsuarioService {
                 throw new NotFoundException('Usuário não encontrado!');
             }
 
-            await this.prismaService.usuario.delete({
+            await this.prismaService.usuario.update({
                 where: {
                     codigo,
+                },
+                data: {
+                    dataExclusao: new Date(),
                 },
             });
         } catch {
@@ -329,6 +341,7 @@ export class UsuarioService {
             const usuario = await this.prismaService.usuario.findFirst({
                 where: {
                     codigo,
+                    dataExclusao: null,
                 },
             });
 
@@ -336,9 +349,12 @@ export class UsuarioService {
                 throw new NotFoundException('Usuário não encontrado!');
             }
 
-            await this.prismaService.usuario.delete({
+            await this.prismaService.usuario.update({
                 where: {
                     codigo,
+                },
+                data: {
+                    dataExclusao: new Date(),
                 },
             });
         } catch {
@@ -372,6 +388,7 @@ export class UsuarioService {
                 select: { senha: true, dataExclusao: true },
                 where: {
                     codigo: codigoUsuario,
+                    dataExclusao: null,
                 },
             });
 
@@ -431,6 +448,7 @@ export class UsuarioService {
                 select: { senha: true, dataExclusao: true },
                 where: {
                     codigo: codigoUsuario,
+                    dataExclusao: null,
                 },
             });
 
@@ -502,6 +520,7 @@ export class UsuarioService {
                     equals: data.email,
                     mode: 'insensitive',
                 },
+                dataExclusao: null,
             },
         });
 
@@ -561,6 +580,7 @@ export class UsuarioService {
                     equals: data.email,
                     mode: 'insensitive',
                 },
+                dataExclusao: null,
             },
         });
 
@@ -664,6 +684,7 @@ export class UsuarioService {
         const usuario = await this.prismaService.usuario.findFirst({
             where: {
                 id: redefinicao.usuarioId,
+                dataExclusao: null,
             },
         });
 
@@ -706,6 +727,7 @@ export class UsuarioService {
         const usuario = await this.prismaService.usuario.findFirst({
             where: {
                 email,
+                dataExclusao: null,
             },
         });
 
@@ -755,6 +777,7 @@ export class UsuarioService {
                 to: email,
                 from: 'eventon@gmail.com',
                 subject: 'Recuperação de senha',
+                messageId: redefinicao.id,
                 html: `
                 <!DOCTYPE html>
                 <html>

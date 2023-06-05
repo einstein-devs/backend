@@ -94,12 +94,14 @@ export class EventoService {
                             },
                         },
                     },
-                    where: {
-                        titulo: {
-                            contains: filtros.search,
-                            mode: 'insensitive',
-                        },
-                    },
+                    where: filtros.search
+                        ? {
+                              titulo: {
+                                  contains: filtros.search,
+                                  mode: 'insensitive',
+                              },
+                          }
+                        : {},
                     orderBy: {
                         dataCriacao: 'desc',
                     },
@@ -113,13 +115,17 @@ export class EventoService {
                             },
                         },
                     },
-                    where: {
-                        titulo: {
-                            contains: filtros.search,
-                            mode: 'insensitive',
-                        },
-                        usuarioId,
-                    },
+                    where: filtros.search
+                        ? {
+                              titulo: {
+                                  contains: filtros.search,
+                                  mode: 'insensitive',
+                              },
+                              usuarioId,
+                          }
+                        : {
+                              usuarioId,
+                          },
                     orderBy: {
                         dataCriacao: 'desc',
                     },

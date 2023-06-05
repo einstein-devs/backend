@@ -1,4 +1,8 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+    Injectable,
+    InternalServerErrorException,
+    NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateCentroDto } from './dtos/create-centro.dto';
 import { FindManyCentrosDto } from './dtos/find-many-centros.dto';
@@ -8,16 +12,21 @@ export class CentroService {
     constructor(private prisma: PrismaService) {}
 
     async findMany(filtros: FindManyCentrosDto, usuarioId: string) {
-        try {
-            const usuario = await this.prisma.usuario.findUnique({
-                include: {
-                    cargo: true,
-                },
-                where: {
-                    id: usuarioId,
-                },
-            });
+        const usuario = await this.prisma.usuario.findFirst({
+            include: {
+                cargo: true,
+            },
+            where: {
+                id: usuarioId,
+                dataExclusao: null,
+            },
+        });
 
+        if (!usuario) {
+            throw new NotFoundException('Usuário não encontrado!');
+        }
+
+        try {
             let centros = [];
 
             if (usuario.cargo.posicao == 'DIRETOR') {

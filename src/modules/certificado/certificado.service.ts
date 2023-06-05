@@ -12,16 +12,21 @@ export class CertificadoService {
     constructor(private readonly prismaService: PrismaService) {}
 
     async getCertificados(usuarioId: string) {
-        try {
-            const usuario = await this.prismaService.usuario.findUnique({
-                include: {
-                    cargo: true,
-                },
-                where: {
-                    id: usuarioId,
-                },
-            });
+        const usuario = await this.prismaService.usuario.findFirst({
+            include: {
+                cargo: true,
+            },
+            where: {
+                id: usuarioId,
+                dataExclusao: null,
+            },
+        });
 
+        if (!usuario) {
+            throw new NotFoundException('Usuário não encontrado!');
+        }
+
+        try {
             if (usuario.cargo.posicao == CargoPosicao.COORDENADOR) {
                 return await this.prismaService.certificado.findMany({
                     where: {

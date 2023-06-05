@@ -2,6 +2,7 @@ import {
     BadRequestException,
     Injectable,
     InternalServerErrorException,
+    NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateCursoDto } from './dtos/create-curso.dto';
@@ -12,16 +13,21 @@ export class CursoService {
     constructor(private prisma: PrismaService) {}
 
     async findMany(filtros: FindManyCursosDto, usuarioId: string) {
-        try {
-            const usuario = await this.prisma.usuario.findUnique({
-                include: {
-                    cargo: true,
-                },
-                where: {
-                    id: usuarioId,
-                },
-            });
+        const usuario = await this.prisma.usuario.findFirst({
+            include: {
+                cargo: true,
+            },
+            where: {
+                id: usuarioId,
+                dataExclusao: null,
+            },
+        });
 
+        if (!usuario) {
+            throw new NotFoundException('Usuário não encontrado!');
+        }
+
+        try {
             let cursos = [];
 
             let where: any = {
