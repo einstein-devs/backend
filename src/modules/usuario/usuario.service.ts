@@ -12,9 +12,9 @@ import { PrismaService } from '../prisma/prisma.service';
 import { EsqueciSenhaDto } from './dto/esqueci-senha.dto';
 import { FindManyAlunosDto } from './dto/find-many-alunos.dto';
 import { RedefinirSenhaDto } from './dto/redefinir-senha.dto';
+import { UpdateAlunoDto } from './dto/update-aluno.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 import { UsuarioDto } from './dto/usuario.dto';
-import { UpdateAlunoDto } from './dto/update-aluno.dto';
 
 @Injectable()
 export class UsuarioService {
@@ -105,6 +105,25 @@ export class UsuarioService {
         } catch {
             throw new InternalServerErrorException(
                 'Ocorreu um erro ao buscar todos os usuários!',
+            );
+        }
+    }
+
+    async findAluno(codigo: string) {
+        try {
+            return await this.prismaService.usuario.findUnique({
+                include: {
+                    curso: true,
+                    cursoCoordenado: true,
+                    cargo: true,
+                },
+                where: {
+                    codigo,
+                },
+            });
+        } catch {
+            throw new InternalServerErrorException(
+                'Ocorreu um erro ao buscar o aluno!',
             );
         }
     }
@@ -202,6 +221,21 @@ export class UsuarioService {
     ) {
         const data: Partial<UpdateAlunoDto> = {};
 
+        const usuarioExisteEmail = await this.prismaService.usuario.findFirst({
+            where: {
+                codigo: {
+                    not: {
+                        equals: codigoUsuario,
+                    },
+                },
+                email,
+            },
+        });
+
+        if (usuarioExisteEmail) {
+            throw new BadRequestException('Usuário com e-mail já existe!');
+        }
+
         try {
             const usuario = await this.prismaService.usuario.findFirst({
                 select: { senha: true, dataExclusao: true },
@@ -220,16 +254,16 @@ export class UsuarioService {
 
             if (cursoId) {
                 const curso = await this.prismaService.curso.findFirst({
-                    where:{
-                        id: cursoId
+                    where: {
+                        id: cursoId,
                     },
                     select: {
-                        id: true
-                    }
-                })
+                        id: true,
+                    },
+                });
 
                 if (!curso) {
-                    throw new NotFoundException("");
+                    throw new NotFoundException('Não existe esse curso!');
                 }
 
                 data.cursoId = curso.id;

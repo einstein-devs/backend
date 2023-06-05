@@ -24,10 +24,10 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { EsqueciSenhaDto } from './dto/esqueci-senha.dto';
 import { FindManyAlunosDto } from './dto/find-many-alunos.dto';
 import { RedefinirSenhaDto } from './dto/redefinir-senha.dto';
-import { UpdateUsuarioDto } from './dto/update-usuario.dto';
-import { UsuarioDto } from './dto/usuario.dto';
 import { UpdateAlunoDto } from './dto/update-aluno.dto';
 import { UpdateCoordenadorDto } from './dto/update-coordenador.dto';
+import { UpdateUsuarioDto } from './dto/update-usuario.dto';
+import { UsuarioDto } from './dto/usuario.dto';
 
 @ApiTags('UsuarioController')
 @Controller('/usuarios')
@@ -39,6 +39,13 @@ export class UsuarioController {
     async findAllAlunos(@Query() filtros: FindManyAlunosDto) {
         const alunos = await this.usuarioService.findAllAlunos(filtros);
         return new DefaultResponseDTO(alunos);
+    }
+
+    @Get('/alunos/:codigo')
+    @HttpCode(HttpStatus.OK)
+    async findAluno(@Param('codigo') codigo: string) {
+        const aluno = await this.usuarioService.findAluno(codigo);
+        return new DefaultResponseDTO(aluno);
     }
 
     @UseGuards(JwtAuthGuard, CargoGuard)
@@ -107,17 +114,21 @@ export class UsuarioController {
         return new DefaultResponseDTO(usuarioCriado);
     }
 
+    @SomenteCargos(CargoPosicao.DIRETOR)
     @Put('/alunos/:codigo/update')
     @HttpCode(HttpStatus.NO_CONTENT)
     async updateAlunoDashboard(
         @Param('codigo') codigoUsuario: string,
         @Body() updateAlunoDto: UpdateAlunoDto,
     ) {
-        await this.usuarioService.updateAlunoDashboard(
+        const usuario = await this.usuarioService.updateAlunoDashboard(
             codigoUsuario,
             updateAlunoDto,
         );
-        return new DefaultResponseDTO({}, 'Usuário atualizado com sucesso!');
+        return new DefaultResponseDTO(
+            usuario,
+            'Usuário atualizado com sucesso!',
+        );
     }
 
     @Put('/coordenador/:codigo/update')
@@ -139,8 +150,14 @@ export class UsuarioController {
         @Param('codigo') codigoUsuario: string,
         @Body() updateUsuarioDto: UpdateUsuarioDto,
     ) {
-        await this.usuarioService.updateUser(codigoUsuario, updateUsuarioDto);
-        return new DefaultResponseDTO({}, 'Usuário atualizado com sucesso!');
+        const usuario = await this.usuarioService.updateUser(
+            codigoUsuario,
+            updateUsuarioDto,
+        );
+        return new DefaultResponseDTO(
+            usuario,
+            'Usuário atualizado com sucesso!',
+        );
     }
 
     @Delete('/:codigo/delete')
